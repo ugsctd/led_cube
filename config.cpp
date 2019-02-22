@@ -72,15 +72,11 @@ void ConfigClass::save()
 {
   this->delayedWriteFlag = false;
   
-	this->config->bg = this->bg;
-	this->config->fg = this->fg;
-	this->config->s = this->s;
-  this->config->brightnessOverride = this->brightnessOverride;
 	this->config->timeZone = this->timeZone;
   this->config->dialect = this->dialect;
-	this->config->heartbeat = this->heartbeat;
-  this->config->esIst = this->esIst;
-	// this->config->mode = (uint32_t) this->defaultMode;
+	// this->config->heartbeat = this->heartbeat;
+  // this->config->esIst = this->esIst;
+	this->config->mode = (uint32_t) this->defaultMode;
 	for (int i = 0; i < 4; i++)
 		this->config->ntpserver[i] = this->ntpserver[i];
 
@@ -100,26 +96,16 @@ void ConfigClass::save()
 void ConfigClass::reset()
 {
 	this->config->magic = 0xDEADBEEF;
-	this->config->bg =
-	{	0, 0, 0};
-	this->bg = this->config->bg;
 
-	this->config->fg =
-	{	255, 255, 255};
-	this->fg = this->config->fg;
 
-	this->config->s =
-	{	0, 0, 0};
-	this->s = this->config->s;
+	// this->config->heartbeat = false;
+	// this->heartbeat = this->config->heartbeat;
 
-	this->config->heartbeat = false;
-	this->heartbeat = this->config->heartbeat;
+  // this->config->esIst = true;
+  // this->esIst = this->config->esIst;
 
-  this->config->esIst = true;
-  this->esIst = this->config->esIst;
-
-	// this->defaultMode = DisplayMode::plain;
-	// this->config->mode = (uint32_t) this->defaultMode;
+	this->defaultMode = DisplayMode::plain;
+	this->config->mode = (uint32_t) this->defaultMode;
 	this->timeZone = 0;
  
   this->dialect = 0;
@@ -134,18 +120,6 @@ void ConfigClass::reset()
 	this->ntpserver[2] = this->config->ntpserver[2];
 	this->ntpserver[3] = this->config->ntpserver[3];
 
-  this->config->brightnessTable[0] = 40;
-  this->config->brightnessTable[1] = 50;
-  this->config->brightnessTable[2] = 60;
-  this->config->brightnessTable[3] = 220;
-  this->config->brightnessTable[4] = 240;
-  this->config->brightnessTable[5] = 255;
-  this->brightnessTable[0] = this->config->brightnessTable[0];
-  this->brightnessTable[1] = this->config->brightnessTable[1];
-  this->brightnessTable[2] = this->config->brightnessTable[2];
-  this->brightnessTable[3] = this->config->brightnessTable[3];
-  this->brightnessTable[4] = this->config->brightnessTable[4];
-  this->brightnessTable[5] = this->config->brightnessTable[5];
 }
 
 //---------------------------------------------------------------------------------------
@@ -169,19 +143,11 @@ void ConfigClass::load()
 		this->reset();
 		this->save();
 	}
-	this->bg = this->config->bg;
-	this->fg = this->config->fg;
-	this->s = this->config->s;
-  this->brightnessOverride = this->config->brightnessOverride;
-	// this->defaultMode = (DisplayMode) this->config->mode;
-	this->heartbeat = this->config->heartbeat;
-  this->esIst = this->config->esIst;
+	this->defaultMode = (DisplayMode) this->config->mode;
+	// this->heartbeat = this->config->heartbeat;
+  // this->esIst = this->config->esIst;
 	this->timeZone = this->config->timeZone;
   this->dialect = this->config->dialect;
 	for (int i = 0; i < 4; i++)
 		this->ntpserver[i] = this->config->ntpserver[i];
-
-  for (int i = 0; i < 6; i++)
-    this->brightnessTable[i] = this->config->brightnessTable[i];
-    
 }

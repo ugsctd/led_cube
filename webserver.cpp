@@ -871,33 +871,33 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
   json["ntp"] = Config.ntpserver.toString();
 
 
-  // String bT = String(Config.brightnessTable[0]) + "," +
-  //             String(Config.brightnessTable[1]) + "," +
-  //             String(Config.brightnessTable[2]) + "," +
-  //             String(Config.brightnessTable[3]) + "," +
-  //             String(Config.brightnessTable[4]) + "," +
-  //             String(Config.brightnessTable[5]);
+  String bT = String(Config.brightnessTable[0]) + "," +
+              String(Config.brightnessTable[1]) + "," +
+              String(Config.brightnessTable[2]) + "," +
+              String(Config.brightnessTable[3]) + "," +
+              String(Config.brightnessTable[4]) + "," +
+              String(Config.brightnessTable[5]);
 
-  // json["brightnessTable"] = bT;
+  json["brightnessTable"] = bT;
   
-  // int mode = 0;
-  // switch(Config.defaultMode)
-  // {
-  // case DisplayMode::plain:
-  //   mode = 0; break;
-  // case DisplayMode::fade:
-  //   mode = 1; break;
-  // case DisplayMode::flyingLettersVerticalUp:
-  //   mode = 2; break;
-  // case DisplayMode::flyingLettersVerticalDown:
-  //   mode = 3; break;
-  // case DisplayMode::explode:
-  //   mode = 4; break;
-  // default:
-  //   mode = 0; break;
-  // }
+  int mode = 0;
+  switch(Config.defaultMode)
+  {
+  case DisplayMode::plain:
+    mode = 0; break;
+  case DisplayMode::fade:
+    mode = 1; break;
+  case DisplayMode::flyingLettersVerticalUp:
+    mode = 2; break;
+  case DisplayMode::flyingLettersVerticalDown:
+    mode = 3; break;
+  case DisplayMode::explode:
+    mode = 4; break;
+  default:
+    mode = 0; break;
+  }
 
-  // json["mode"] = String(mode);
+  json["mode"] = String(mode);
 
   if(Config.heartbeat) json["heartbeat"] = "1";
   else json["heartbeat"] = "0"  ;

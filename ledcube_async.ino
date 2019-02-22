@@ -11,6 +11,7 @@
 #include "webserver.h"
 #include "config.h"
 #include "osapi.h"
+#include "cube_example.h"
 // LEDFunctionsClass LED = LEDFunctionsClass();
 #define PRODUCTION
 #ifndef PRODUCTION
@@ -52,9 +53,6 @@ int ms = 0;
 int lastSecond = -1;
 bool timeVarLock = false;
 bool startup = true;
-
-int hourglassState = 0;
-int hourglassPrescaler = 0;
 
 int updateCountdown = 25;
 
@@ -182,7 +180,7 @@ void setup()
   Serial.begin(115200);
   Serial.println();
   Serial.println();
-  Serial.println(F("ESP8266 WordClock setup() begin"));
+  Serial.println(F("ESP8266 cube_async setup() begin"));
 
   // timer
   Serial.println(F("Starting timer"));
@@ -193,7 +191,8 @@ void setup()
   Config.begin();
 
   // LEDs
-  Serial.println(F("Starting LED module"));
+  Serial.println(F("Taking over LED module"));
+  Cube.setup(true);
   // LED.begin(D2);
   // LED.setMode(DisplayMode::yellowHourglass);
 
@@ -205,7 +204,7 @@ void setup()
 
   AsyncWiFiManager wifiManager(&server, &dns);
   wifiManager.setAPCallback(configModeCallback);
-  if (!wifiManager.autoConnect("WordClock"))
+  if (!wifiManager.autoConnect("cube"))
   {
     Serial.println(F("failed to connect, timeout"));
     delay(1000);
@@ -214,7 +213,7 @@ void setup()
 
   // Setup debugging capabilites
   #ifndef PRODUCTION
-    Debug.begin("WordClock");
+    Debug.begin("cube");
     Debug.setResetCmdEnabled(true); // Enable the reset command
     Debug.showTime(true); // To show time
     Debug.showColors(true); // Colors
@@ -226,7 +225,7 @@ void setup()
   // OTA update
   Serial.println(F("Initializing OTA"));
   ArduinoOTA.setPort(8266);
-  ArduinoOTA.setHostname("WordClock");
+  ArduinoOTA.setHostname("cube");
   //ArduinoOTA.setPassword((const char *)"123");
   ArduinoOTA.onStart([]()
   {
@@ -287,7 +286,7 @@ void loop()
   ArduinoOTA.handle();
 
   // update LEDs
-
+  Cube.loopcube();
 
   // output current time if seconds value has changed
   if (s != lastSecond)

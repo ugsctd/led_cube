@@ -19,29 +19,20 @@
 #define _CONFIG_H_
 
 #include <IPAddress.h>
-// #include <stdint.h>
-
-#define NUM_PIXELS 114
-#define HOURGLASS_ANIMATION_FRAMES 8
-
-// structure to encapsulate a color value with red, green and blue values
-typedef struct _palette_entry
-{
-	uint8_t r, g, b;
-} palette_entry;
 
 // structure with configuration data to be stored in EEPROM
 typedef struct _config_struct
 {
 	uint32_t magic;
-	palette_entry bg;
-	palette_entry fg;
-	palette_entry s;
-  uint32_t brightnessOverride;
-  uint8_t brightnessTable[6];
+	// palette_entry bg;
+	// palette_entry fg;
+	// palette_entry s;
+  // uint32_t brightnessOverride;
+  // uint8_t brightnessTable[6];
 	uint8_t ntpserver[4];
- 	bool heartbeat;
-  bool esIst; 
+	
+ 	// bool heartbeat;
+  // bool esIst; 
 	uint32_t mode;
 	uint32_t timeZone;
   uint32_t dialect;
@@ -70,20 +61,14 @@ public:
 	void reset();
 
 	// public configuration variables
-	palette_entry fg;
-	palette_entry bg;
-	palette_entry s;
-  int brightnessOverride = 256;
 	IPAddress ntpserver = IPAddress(0, 0, 0, 0);
-  int brightnessTable[6];
-	bool heartbeat = true;
-  bool esIst = true; 
+	// bool heartbeat = true;
+  // bool esIst = true; 
 	bool debugMode = false;
 
-	// DisplayMode defaultMode = DisplayMode::flyingLettersVerticalUp;
+	DisplayMode defaultMode = DisplayMode::flyingLettersVerticalUp;
 
 	int updateProgress = 0;
-	int hourglassState = 0;
 	int timeZone = 0;
   int delayedWriteTimer = 0;
   bool delayedWriteFlag = false;
