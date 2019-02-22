@@ -25,15 +25,6 @@
 #include <vector>
 
 #include "config.h"
-#include "matrixobject.h"
-#include "starobject.h"
-#include "particle.h"
-
-typedef struct _leds_template_t
-{
-	int param0, param1, param2;
-	std::vector<int> LEDs;
-} leds_template_t;
 
 typedef struct _xy_t
 {
@@ -68,8 +59,6 @@ public:
   void changeToSchwabe();
 
 private:
-	static std::vector<leds_template_t> hoursTemplate;
-	std::vector<leds_template_t> minutesTemplate;
   static const palette_entry firePalette[];
   static const palette_entry plasmaPalette[];
 
@@ -77,13 +66,7 @@ private:
 
 
   
-	std::vector<Particle*> particles;
-	std::vector<xy_t> arrivingLetters;
-	std::vector<xy_t> leavingLetters;
-	std::vector<MatrixObject> matrix;
-	std::vector<StarObject> stars;
 	uint8_t targetValues[NUM_PIXELS * 3];
-	NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>* pixels;
 	int heartBrightness = 0;
 	int heartState = 0;
 	int brightness = 96;
@@ -98,21 +81,12 @@ private:
 	void renderRed();
 	void renderGreen();
 	void renderBlue();
-	void renderMatrix();
-	void renderHeart();
-  void renderFire();
-  void renderPlasma();
-	void renderStars();
+	
 	void renderUpdate();
 	void renderUpdateComplete();
 	void renderUpdateError();
-	void renderHourglass(uint8_t animationStep, bool green);
 	void renderWifiManager();
 	void renderTime(uint8_t *target, int h, int m, int s, int ms);
-	void renderFlyingLetters();
-	void prepareFlyingLetters(uint8_t *source);
-	void renderExplosion();
-	void prepareExplosion(uint8_t *source);
 	void fade();
 	void set(const uint8_t *buf, palette_entry palette[]);
 	void set(const uint8_t *buf, palette_entry palette[], bool immediately);
@@ -120,12 +94,6 @@ private:
 
 	// this mapping table maps the linear memory buffer structure used throughout the
 	// project to the physical layout of the LEDs
-	static const uint8_t PROGMEM mapping[NUM_PIXELS];
-
-	static const uint8_t PROGMEM brightnessCurveSelect[NUM_PIXELS];
-	static const uint8_t PROGMEM brightnessCurvesR[256*NUM_BRIGHTNESS_CURVES];
-	static const uint8_t PROGMEM brightnessCurvesG[256*NUM_BRIGHTNESS_CURVES];
-	static const uint8_t PROGMEM brightnessCurvesB[256*NUM_BRIGHTNESS_CURVES];;
 };
 
 extern LEDFunctionsClass LED;

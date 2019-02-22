@@ -1,16 +1,17 @@
+#include <Ticker.h>
+
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 #include <Ticker.h>
-
 #include <ESPAsyncWiFiManager.h>
 
-#include "ledfunctions.h"
-#include "brightness.h"
+// #include "ledfunctions.h"
+// #include "brightness.h"
 #include "ntp.h"
 #include "webserver.h"
 #include "config.h"
 #include "osapi.h"
-
+// LEDFunctionsClass LED = LEDFunctionsClass();
 #define PRODUCTION
 #ifndef PRODUCTION
 
@@ -107,7 +108,7 @@ void timerCallback()
       Config.hourglassState = 0;
 
     // trigger LED processing for hourglass during startup
-    if (startup) LED.process();
+  //  if (startup) LED.process();
   }
 }
 
@@ -121,7 +122,7 @@ void timerCallback()
 //---------------------------------------------------------------------------------------
 void configModeCallback(AsyncWiFiManager *myWiFiManager)
 {
-  LED.setMode(DisplayMode::wifiManager);
+  // LED.setMode(DisplayMode::wifiManager);
   Serial.println("Entered config mode");
   Serial.println(WiFi.softAPIP());
   Serial.println(myWiFiManager->getConfigPortalSSID());
@@ -170,10 +171,10 @@ void NtpCallback(uint8_t _h, uint8_t _m, uint8_t _s, uint8_t _ms)
 void setup()
 {
   // ESP8266 LED
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(LED_RED, OUTPUT);
-  pinMode(LED_GREEN, OUTPUT);
-  pinMode(LED_BLUE, OUTPUT);
+  // pinMode(LED_BUILTIN, OUTPUT);
+  // pinMode(LED_RED, OUTPUT);
+  // pinMode(LED_GREEN, OUTPUT);
+  // pinMode(LED_BLUE, OUTPUT);
 
   //setLED(1, 0, 0);
 
@@ -193,8 +194,8 @@ void setup()
 
   // LEDs
   Serial.println(F("Starting LED module"));
-  LED.begin(D2);
-  LED.setMode(DisplayMode::yellowHourglass);
+  // LED.begin(D2);
+  // LED.setMode(DisplayMode::yellowHourglass);
 
   // WiFi
   Serial.println(F("Initializing WiFi"));
@@ -229,25 +230,25 @@ void setup()
   //ArduinoOTA.setPassword((const char *)"123");
   ArduinoOTA.onStart([]()
   {
-    LED.setMode(DisplayMode::update);
+    // LED.setMode(DisplayMode::update);
     Config.updateProgress = 0;
     OTA_in_progress = 1;
     Serial.println(F("OTA Start"));
   });
   ArduinoOTA.onEnd([]()
   {
-    LED.setMode(DisplayMode::updateComplete);
+    // LED.setMode(DisplayMode::updateComplete);
     Serial.println(F("\nOTA End"));
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
   {
-    LED.setMode(DisplayMode::update);
+    // LED.setMode(DisplayMode::update);
     Config.updateProgress = progress * 110 / total;
     Serial.printf("OTA Progress: %u%%\r\n", (progress / (total / 100)));
   });
   ArduinoOTA.onError([](ota_error_t error)
   {
-    LED.setMode(DisplayMode::updateError);
+    // LED.setMode(DisplayMode::updateError);
     Serial.printf("OTA Error[%u]: ", error);
     if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
     else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
@@ -294,18 +295,18 @@ void loop()
     lastSecond = s;
     
     #ifndef PRODUCTION
-      DEBUG("%02i:%02i:%02i, ADC=%i, heap=%i, brightness=%i\r\n",
-          h, m, s, Brightness.avg, ESP.getFreeHeap(), Brightness.value());
+      // DEBUG("%02i:%02i:%02i, ADC=%i, heap=%i, brightness=%i\r\n",
+          // h, m, s, Brightness.avg, ESP.getFreeHeap(), Brightness.value());
     #endif
     
 
     // Adjust the brightness only once per second, everything else significantly boosts the crash risk
-    LED.setBrightness(Brightness.value());
+    // LED.setBrightness(Brightness.value());
   }
 
 
-  LED.setTime(h, m, s, ms);
-  LED.process();
+  // LED.setTime(h, m, s, ms);
+  // LED.process();
 
   // do not continue if OTA update is in progress
   // OTA callbacks drive the LED display mode and OTA progress
@@ -317,30 +318,30 @@ void loop()
   // show the hourglass animation with green corners for the first 2.5 seconds
   // after boot to be able to reflash with OTA during that time window if
   // the firmware hangs afterwards
-  if (updateCountdown)
-  {
-    //setLED(0, 1, 0);
-    LED.setMode(DisplayMode::greenHourglass);
-    Serial.print(".");
-    delay(100);
-    updateCountdown--;
-    if (updateCountdown == 0)
-    {
-      LED.setMode(Config.defaultMode);
-      //setLED(0, 0, 0);
-    }
-    return;
-  }
+  // if (updateCountdown)
+  // {
+  //   //setLED(0, 1, 0);
+  //   // LED.setMode(DisplayMode::greenHourglass);
+  //   // Serial.print(".");
+  //   // delay(100);
+  //   // updateCountdown--;
+  //   // if (updateCountdown == 0)
+  //   {
+  //     // LED.setMode(Config.defaultMode);
+  //     //setLED(0, 0, 0);
+  //   }
+  //   return;
+  // }
 
   // set mode depending on current time
-  if(h == 22 && m == 00) LED.setMode(DisplayMode::heart);
+  // if(h == 22 && m == 00) LED.setMode(DisplayMode::heart);
   //else if(h == 13 && m == 37) LED.setMode(DisplayMode::matrix);
   //else if(h == 23 && m == 00) LED.setMode(DisplayMode::stars);
-  else if(h == 20 && m == 00) LED.setMode(DisplayMode::plasma);
-  else if(h == 21 && m == 00) LED.setMode(DisplayMode::fire);
+  // else if(h == 20 && m == 00) LED.setMode(DisplayMode::plasma);
+  // else if(h == 21 && m == 00) LED.setMode(DisplayMode::fire);
   //else
 
-  LED.setMode(Config.defaultMode);
+  // LED.setMode(Config.defaultMode);
 
   // do web server stuff
   //WebServer.process();

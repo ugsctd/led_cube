@@ -80,7 +80,7 @@ void ConfigClass::save()
   this->config->dialect = this->dialect;
 	this->config->heartbeat = this->heartbeat;
   this->config->esIst = this->esIst;
-	this->config->mode = (uint32_t) this->defaultMode;
+	// this->config->mode = (uint32_t) this->defaultMode;
 	for (int i = 0; i < 4; i++)
 		this->config->ntpserver[i] = this->ntpserver[i];
 
@@ -118,8 +118,8 @@ void ConfigClass::reset()
   this->config->esIst = true;
   this->esIst = this->config->esIst;
 
-	this->defaultMode = DisplayMode::plain;
-	this->config->mode = (uint32_t) this->defaultMode;
+	// this->defaultMode = DisplayMode::plain;
+	// this->config->mode = (uint32_t) this->defaultMode;
 	this->timeZone = 0;
  
   this->dialect = 0;
@@ -173,7 +173,7 @@ void ConfigClass::load()
 	this->fg = this->config->fg;
 	this->s = this->config->s;
   this->brightnessOverride = this->config->brightnessOverride;
-	this->defaultMode = (DisplayMode) this->config->mode;
+	// this->defaultMode = (DisplayMode) this->config->mode;
 	this->heartbeat = this->config->heartbeat;
   this->esIst = this->config->esIst;
 	this->timeZone = this->config->timeZone;

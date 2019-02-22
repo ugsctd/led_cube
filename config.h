@@ -19,6 +19,7 @@
 #define _CONFIG_H_
 
 #include <IPAddress.h>
+// #include <stdint.h>
 
 #define NUM_PIXELS 114
 #define HOURGLASS_ANIMATION_FRAMES 8
@@ -79,7 +80,7 @@ public:
   bool esIst = true; 
 	bool debugMode = false;
 
-	DisplayMode defaultMode = DisplayMode::flyingLettersVerticalUp;
+	// DisplayMode defaultMode = DisplayMode::flyingLettersVerticalUp;
 
 	int updateProgress = 0;
 	int hourglassState = 0;
