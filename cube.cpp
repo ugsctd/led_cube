@@ -1,5 +1,6 @@
-// #include <stdint.h>
-#include <cube_example.h>
+#include <stdint.h>
+// #include <cube.h>
+#include "cube.h"
 
 // #define LAYER_COUNT 8
 // #define COLUMN_COUNT 64
@@ -98,10 +99,10 @@ void CubeClass::printLetter(char letter)
         switch (letter)
         {
         case 't':
-            funPrintCube(letter_T);
+            this->funPrintCube(letter_T);
             break;
         case 'b':
-            funPrintCube(letter_B);
+            this->funPrintCube(letter_B);
             break;
         default:
             break;
@@ -117,9 +118,9 @@ void CubeClass::printLetter(char letter)
 //---------------------------------------------------------------------------------------
 void CubeClass::loopcube()
 {
-    DemoALL_OFF(pCube);
-    DemoRise(pCube);
-    DemoALL_ON(pCube);
+    this->DemoALL_OFF(pCube);
+    this->DemoRise(pCube);
+    this->DemoALL_ON(pCube);
 }
 
 //---------------------------------------------------------------------------------------
@@ -140,7 +141,7 @@ void CubeClass::DemoALL_ON(byte *pCube)
         {
             pCube[i] = 0xff;
         }
-        funPrintCube(pCube);
+        this->funPrintCube(pCube);
     }
 }
 
@@ -162,7 +163,7 @@ void CubeClass::DemoALL_OFF(byte *pCube)
         {
             pCube[i] = 0x00;
         }
-        funPrintCube(pCube);
+        this->funPrintCube(pCube);
     }
 }
 
@@ -189,10 +190,10 @@ void CubeClass::DemoRise(byte *pCube)
         {
             x = random(8);
             y = random(8);
-            pCube[funGetColumn(x, y)] |= 0x01;
+            pCube[this->funGetColumn(x, y)] |= 0x01;
         }
 
-        funPrintCube(pCube);
+        this->funPrintCube(pCube);
     }
 }
 
@@ -219,10 +220,10 @@ void CubeClass::DemoFall(byte *pCube)
         {
             x = random(8);
             y = random(8);
-            pCube[funGetColumn(x, y)] |= 0x01;
+            pCube[this->funGetColumn(x, y)] |= 0x01;
         }
 
-        funPrintCube(pCube);
+        this->funPrintCube(pCube);
     }
 }
 

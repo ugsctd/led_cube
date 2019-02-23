@@ -15,14 +15,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#ifndef _CUBE_EXAMPLE_H_
-#define _CUBE_EXAMPLE_H_
+#ifndef _CUBE_H_
+#define _CUBE_H_
 
 // #include <IPAddress.h>
 #include <stdint.h>
 
-// #define NUM_PIXELS 114
-// #define HOURGLASS_ANIMATION_FRAMES 8
 
 #define LAYER_COUNT 8
 #define COLUMN_COUNT 64
@@ -57,4 +55,4 @@ class CubeClass
 
 extern CubeClass Cube;
 
-#endif /* _CUBE_EXAMPLE_H_ */
+#endif /* _CUBE_H_ */

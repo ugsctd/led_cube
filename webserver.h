@@ -36,26 +36,27 @@ public:
 	void process();
 
 private:
+	// JsonObject &buildConfigurationString(JsonBuffer &jsonBuffer);
 
-  AsyncWebServer server = AsyncWebServer(80);
-  AsyncWebSocket ws     = AsyncWebSocket("/ws"); // access at ws://[esp ip]/ws
+	AsyncWebServer server = AsyncWebServer(80);
+	AsyncWebSocket ws = AsyncWebSocket("/ws"); // access at ws://[esp ip]/ws
 
 	void handleSaveConfig(AsyncWebServerRequest *request);
 	void handleLoadConfig(AsyncWebServerRequest *request);
-  void handleResetConfig(AsyncWebServerRequest *request);
+	void handleResetConfig(AsyncWebServerRequest *request);
 	void handleGetColors();
 	void handleSetColor(AsyncWebServerRequest *request);
 	void handleNotFound();
 	void handleSetTimeZone(AsyncWebServerRequest *request);
 	void handleGetTimeZone();
-  void handleSetDialect(AsyncWebServerRequest *request);
-  void handleGetDialect();
+	void handleSetDialect(AsyncWebServerRequest *request);
+	void handleGetDialect();
 	void handleSetMode(AsyncWebServerRequest *request);
 	void handleGetMode();
 	void handleSetHeartbeat(AsyncWebServerRequest *request);
 	void handleGetHeartbeat();
-  void handleSetEsIst(AsyncWebServerRequest *request);
-  void handleGetEsIst();
+	void handleSetEsIst(AsyncWebServerRequest *request);
+	void handleGetEsIst();
 	void handleInfo(AsyncWebServerRequest *request);
 	void handleH(AsyncWebServerRequest *request);
 	void handleM(AsyncWebServerRequest *request);
@@ -63,14 +64,14 @@ private:
 	void handleG(AsyncWebServerRequest *request);
 	void handleB(AsyncWebServerRequest *request);
 	void handleDebug(AsyncWebServerRequest *request);
-  void handleGetBrightness();
+	void handleGetBrightness();
 	void handleSetBrightness(AsyncWebServerRequest *request);
-  void handleSetBrightnessTable(AsyncWebServerRequest *request);
+	void handleSetBrightnessTable(AsyncWebServerRequest *request);
 	void handleGetADC(AsyncWebServerRequest *request);
 	void handleGetNtpServer();
 	void handleSetNtpServer(AsyncWebServerRequest *request);
-  void handleGetSettings(AsyncWebServerRequest *request);
-	void extractColor(AsyncWebServerRequest *request, String argName, palette_entry& result);
+	void handleGetSettings(AsyncWebServerRequest *request);
+	// void extractColor(AsyncWebServerRequest *request, String argName, palette_entry& result);
 };
 
 extern WebServerClass WebServer;

@@ -27,25 +27,42 @@ typedef struct _config_struct
 	// palette_entry bg;
 	// palette_entry fg;
 	// palette_entry s;
-  // uint32_t brightnessOverride;
-  // uint8_t brightnessTable[6];
+	// uint32_t brightnessOverride;
+	// uint8_t brightnessTable[6];
 	uint8_t ntpserver[4];
-	
- 	// bool heartbeat;
-  // bool esIst; 
+
+	bool heartbeat;
+	// bool esIst;
 	uint32_t mode;
 	uint32_t timeZone;
-  uint32_t dialect;
+	uint32_t dialect;
 } config_struct;
 
 #define EEPROM_SIZE 512
 
 enum class DisplayMode
 {
-	plain, fade, flyingLettersVerticalUp, flyingLettersVerticalDown, explode,
-	random, matrix, heart, fire, plasma, stars, red, green, blue,
-	yellowHourglass, greenHourglass, update, updateComplete, updateError,
-	wifiManager, invalid
+	plain,
+	fade,
+	flyingLettersVerticalUp,
+	flyingLettersVerticalDown,
+	explode,
+	random,
+	matrix,
+	heart,
+	fire,
+	plasma,
+	stars,
+	red,
+	green,
+	blue,
+	yellowHourglass,
+	greenHourglass,
+	update,
+	updateComplete,
+	updateError,
+	wifiManager,
+	invalid
 };
 
 class ConfigClass
@@ -56,27 +73,27 @@ public:
 	virtual ~ConfigClass();
 	void begin();
 	void save();
-  void saveDelayed();
+	void saveDelayed();
 	void load();
 	void reset();
 
 	// public configuration variables
 	IPAddress ntpserver = IPAddress(0, 0, 0, 0);
-	// bool heartbeat = true;
-  // bool esIst = true; 
+	bool heartbeat = false;
+	// bool esIst = true;
 	bool debugMode = false;
 
 	DisplayMode defaultMode = DisplayMode::flyingLettersVerticalUp;
 
 	int updateProgress = 0;
 	int timeZone = 0;
-  int delayedWriteTimer = 0;
-  bool delayedWriteFlag = false;
-  int dialect = 0;
+	int delayedWriteTimer = 0;
+	bool delayedWriteFlag = false;
+	int dialect = 0;
 
 private:
 	// copy of EEPROM content
-	config_struct *config = (config_struct*) eeprom_data;
+	config_struct *config = (config_struct *)eeprom_data;
 	uint8_t eeprom_data[EEPROM_SIZE];
 };
 

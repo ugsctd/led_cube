@@ -20,64 +20,50 @@
 #include <Arduino.h>
 #include <FS.h>
 #include <ArduinoJson.h>
-
-// #include "ledfunctions.h"
 #include "webserver.h"
 #include "ntp.h"
 
-
 bool shouldReboot = false;
 
+JsonObject &buildConfigurationString()
+{
+    StaticJsonBuffer<512> jsonBuffer;
 
-JsonObject& buildConfigurationString(JsonBuffer& jsonBuffer){
+  JsonObject &json = jsonBuffer.createObject();
+  json["ntp"] = Config.ntpserver.toString();
 
-  JsonObject& json = jsonBuffer.createObject();
+  int mode = 0;
+  switch (Config.defaultMode)
+  {
+  case DisplayMode::plain:
+    mode = 0;
+    break;
+  case DisplayMode::fade:
+    mode = 1;
+    break;
+  case DisplayMode::flyingLettersVerticalUp:
+    mode = 2;
+    break;
+  case DisplayMode::flyingLettersVerticalDown:
+    mode = 3;
+    break;
+  default:
+    mode = 0;
+    break;
+  }
 
-  // String color = String(Config.bg.r) + "," + String(Config.bg.g) + ","
-  //                 + String(Config.bg.b) + "," + String(Config.fg.r) + ","
-  //                 + String(Config.fg.g) + "," + String(Config.fg.b) + ","
-  //                 + String(Config.s.r) + "," + String(Config.s.g) + ","
-  //                 + String(Config.s.b);
-  
-  // json["colors"] = color;
+  json["mode"] = String(mode);
 
-  // json["ntp"] = Config.ntpserver.toString();
+  if (Config.heartbeat)
+    json["heartbeat"] = "1";
+  else
+    json["heartbeat"] = "0";
 
-
-  // String bT = String(Config.brightnessTable[0]) + "," +
-  //             String(Config.brightnessTable[1]) + "," +
-  //             String(Config.brightnessTable[2]) + "," +
-  //             String(Config.brightnessTable[3]) + "," +
-  //             String(Config.brightnessTable[4]) + "," +
-  //             String(Config.brightnessTable[5]);
-
-  // json["brightnessTable"] = bT;
-
-  // int mode = 0;
-  // switch(Config.defaultMode)
-  // {
-  // case DisplayMode::plain:
-  //   mode = 0; break;
-  // case DisplayMode::fade:
-  //   mode = 1; break;
-  // case DisplayMode::flyingLettersVerticalUp:
-  //   mode = 2; break;
-  // case DisplayMode::flyingLettersVerticalDown:
-  //   mode = 3; break;
-  // default:
-  //   mode = 0; break;
-  // }
-
-  // json["mode"] = String(mode);
-
-  // if(Config.heartbeat) json["heartbeat"] = "1";
-  // else json["heartbeat"] = "0"  ;
-        
   // if(Config.esIst) json["esIst"] = "1";
   // else json["esIst"] = "0";
 
-  // json["dialect"] =  String(Config.dialect);
-  // json["timezone"] = String(Config.timeZone);
+  json["dialect"] = String(Config.dialect);
+  json["timezone"] = String(Config.timeZone);
 
   // json["brightness"] = String(Config.brightnessOverride);
 
@@ -89,120 +75,148 @@ JsonObject& buildConfigurationString(JsonBuffer& jsonBuffer){
 
 String getValue(String data, char separator, int index)
 {
-    int found = 0;
-    int strIndex[] = { 0, -1 };
-    int maxIndex = data.length() - 1;
+  int found = 0;
+  int strIndex[] = {0, -1};
+  int maxIndex = data.length() - 1;
 
-    for (int i = 0; i <= maxIndex && found <= index; i++) {
-        if (data.charAt(i) == separator || i == maxIndex) {
-            found++;
-            strIndex[0] = strIndex[1] + 1;
-            strIndex[1] = (i == maxIndex) ? i+1 : i;
-        }
+  for (int i = 0; i <= maxIndex && found <= index; i++)
+  {
+    if (data.charAt(i) == separator || i == maxIndex)
+    {
+      found++;
+      strIndex[0] = strIndex[1] + 1;
+      strIndex[1] = (i == maxIndex) ? i + 1 : i;
     }
-    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+  }
+  return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
-void handleConfigMessage(String msg){
+void handleConfigMessage(String msg)
+{
 
-
-  String key = getValue(msg,':',0);
-  String value = getValue(msg,':',1);
+  String key = getValue(msg, ':', 0);
+  String value = getValue(msg, ':', 1);
 
   // if (key == "heartbeat" && value != ""){
   //   Config.heartbeat = (value == "1");
   // }else if (key == "color" && value != ""){
-  
+
   // }else if (key == "color" && value != ""){
-  
+
   // }else if (key == "color" && value != ""){
-  
+
   // }else if (key == "color" && value != ""){
-  
+
   // }else if (key == "color" && value != ""){
-  
+
   // }else if (key == "color" && value != ""){
-  
+
   // }else if (key == "color" && value != ""){
-  
+
   // }else if (key == "color" && value != ""){
-  
+
   // }
 
   // return;
 }
 
-void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
-  if(type == WS_EVT_CONNECT){
+void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+  if (type == WS_EVT_CONNECT)
+  {
     Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
     //client->printf("Configuration Broadcast for UID: %u", client->id());
     //client->ping();
-    StaticJsonBuffer<512> jsonBuffer;
-     JsonObject& json = buildConfigurationString(jsonBuffer);
+    JsonObject &json = buildConfigurationString();
     size_t len = json.measureLength();
-    AsyncWebSocketMessageBuffer * buffer = server->makeBuffer(len); //  creates a buffer (len + 1) for you.
-    if (buffer) {
+    AsyncWebSocketMessageBuffer *buffer = server->makeBuffer(len); //  creates a buffer (len + 1) for you.
+    if (buffer)
+    {
       json.printTo((char *)buffer->get(), len + 1);
       client->text(buffer);
-    }  
-  } else if(type == WS_EVT_DISCONNECT){
+    }
+  }
+  else if (type == WS_EVT_DISCONNECT)
+  {
     Serial.printf("ws[%s][%u] disconnect: %u\n", server->url(), client->id());
-  } else if(type == WS_EVT_ERROR){
-    Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t*)arg), (char*)data);
-  } else if(type == WS_EVT_PONG){
-    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len)?(char*)data:"");
-  } else if(type == WS_EVT_DATA){
-    AwsFrameInfo * info = (AwsFrameInfo*)arg;
+  }
+  else if (type == WS_EVT_ERROR)
+  {
+    Serial.printf("ws[%s][%u] error(%u): %s\n", server->url(), client->id(), *((uint16_t *)arg), (char *)data);
+  }
+  else if (type == WS_EVT_PONG)
+  {
+    Serial.printf("ws[%s][%u] pong[%u]: %s\n", server->url(), client->id(), len, (len) ? (char *)data : "");
+  }
+  else if (type == WS_EVT_DATA)
+  {
+    AwsFrameInfo *info = (AwsFrameInfo *)arg;
     String msg = "";
-    if(info->final && info->index == 0 && info->len == len){
+    if (info->final && info->index == 0 && info->len == len)
+    {
       //the whole message is in a single frame and we got all of it's data
-      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT)?"text":"binary", info->len);
+      Serial.printf("ws[%s][%u] %s-message[%llu]: ", server->url(), client->id(), (info->opcode == WS_TEXT) ? "text" : "binary", info->len);
 
-      if(info->opcode == WS_TEXT){
-        for(size_t i=0; i < info->len; i++) {
-          msg += (char) data[i];
-        }
-      } else {
-        char buff[3];
-        for(size_t i=0; i < info->len; i++) {
-          sprintf(buff, "%02x ", (uint8_t) data[i]);
-          msg += buff ;
+      if (info->opcode == WS_TEXT)
+      {
+        for (size_t i = 0; i < info->len; i++)
+        {
+          msg += (char)data[i];
         }
       }
-      Serial.printf("%s\n",msg.c_str());
+      else
+      {
+        char buff[3];
+        for (size_t i = 0; i < info->len; i++)
+        {
+          sprintf(buff, "%02x ", (uint8_t)data[i]);
+          msg += buff;
+        }
+      }
+      Serial.printf("%s\n", msg.c_str());
 
-      if(info->opcode == WS_TEXT)
+      if (info->opcode == WS_TEXT)
         handleConfigMessage(msg);
       else
         client->binary("I got your binary message");
-    } else {
+    }
+    else
+    {
       //message is comprised of multiple frames or the frame is split into multiple packets
-      if(info->index == 0){
-        if(info->num == 0)
-          Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
+      if (info->index == 0)
+      {
+        if (info->num == 0)
+          Serial.printf("ws[%s][%u] %s-message start\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
         Serial.printf("ws[%s][%u] frame[%u] start[%llu]\n", server->url(), client->id(), info->num, info->len);
       }
 
-      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT)?"text":"binary", info->index, info->index + len);
+      Serial.printf("ws[%s][%u] frame[%u] %s[%llu - %llu]: ", server->url(), client->id(), info->num, (info->message_opcode == WS_TEXT) ? "text" : "binary", info->index, info->index + len);
 
-      if(info->opcode == WS_TEXT){
-        for(size_t i=0; i < info->len; i++) {
-          msg += (char) data[i];
-        }
-      } else {
-        char buff[3];
-        for(size_t i=0; i < info->len; i++) {
-          sprintf(buff, "%02x ", (uint8_t) data[i]);
-          msg += buff ;
+      if (info->opcode == WS_TEXT)
+      {
+        for (size_t i = 0; i < info->len; i++)
+        {
+          msg += (char)data[i];
         }
       }
-      Serial.printf("%s\n",msg.c_str());
+      else
+      {
+        char buff[3];
+        for (size_t i = 0; i < info->len; i++)
+        {
+          sprintf(buff, "%02x ", (uint8_t)data[i]);
+          msg += buff;
+        }
+      }
+      Serial.printf("%s\n", msg.c_str());
 
-      if((info->index + len) == info->len){
+      if ((info->index + len) == info->len)
+      {
         Serial.printf("ws[%s][%u] frame[%u] end[%llu]\n", server->url(), client->id(), info->num, info->len);
-        if(info->final){
-          Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT)?"text":"binary");
-          if(info->message_opcode == WS_TEXT)
+        if (info->final)
+        {
+          Serial.printf("ws[%s][%u] %s-message end\n", server->url(), client->id(), (info->message_opcode == WS_TEXT) ? "text" : "binary");
+          if (info->message_opcode == WS_TEXT)
             client->text("I got your text message");
           else
             client->binary("I got your binary message");
@@ -211,8 +225,6 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     }
   }
 }
-
-
 
 //---------------------------------------------------------------------------------------
 // global instance
@@ -241,8 +253,8 @@ WebServerClass::WebServerClass()
 //---------------------------------------------------------------------------------------
 WebServerClass::~WebServerClass()
 {
-//	if (this->server)
-//		delete this->server;
+  //	if (this->server)
+  //		delete this->server;
 }
 
 //---------------------------------------------------------------------------------------
@@ -255,66 +267,63 @@ WebServerClass::~WebServerClass()
 //---------------------------------------------------------------------------------------
 void WebServerClass::begin()
 {
-    Serial.println("Starting webserver");
-	SPIFFS.begin();
+  Serial.println("Starting webserver");
+  SPIFFS.begin();
 
-	// this->server = new ESP8266WebServer(80);
-
+  // this->server = new ESP8266WebServer(80);
 
   AsyncEventSource events("/events"); // event source (Server-Sent events)
 
-//  server.on("/index", HTTP_ANY, [](AsyncWebServerRequest *request){
-//    request->send(SPIFFS, "/index.htm");
-//  });
-//
-//  server.on("/jscolor", HTTP_ANY, [](AsyncWebServerRequest *request){
-//    request->send(SPIFFS, "/jscolor.js");
-//  });
+  server.on("/index", HTTP_ANY, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/index.htm");
+  });
 
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age:600");;
+  server.on("/jscolor", HTTP_ANY, [](AsyncWebServerRequest *request) {
+    request->send(SPIFFS, "/jscolor.js");
+  });
+
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age:600");
 
   // attach AsyncWebSocket
-  // ws.onEvent(onWsEvent);
+  ws.onEvent(onWsEvent);
   server.addHandler(&ws);
 
+  server.on("/info", HTTP_ANY, std::bind(&WebServerClass::handleInfo, this, std::placeholders::_1));
 
-  // server.on("/info", HTTP_ANY, std::bind(&WebServerClass::handleInfo, this, std::placeholders::_1));
+  server.on("/h", HTTP_ANY, std::bind(&WebServerClass::handleH, this, std::placeholders::_1));
+  server.on("/m", HTTP_ANY, std::bind(&WebServerClass::handleM, this, std::placeholders::_1));
+  server.on("/r", HTTP_ANY, std::bind(&WebServerClass::handleR, this, std::placeholders::_1));
+  server.on("/g", HTTP_ANY, std::bind(&WebServerClass::handleG, this, std::placeholders::_1));
+  server.on("/b", HTTP_ANY, std::bind(&WebServerClass::handleB, this, std::placeholders::_1));
 
-  // server.on("/h", HTTP_ANY, std::bind(&WebServerClass::handleH, this, std::placeholders::_1));
-  // server.on("/m", HTTP_ANY, std::bind(&WebServerClass::handleM, this, std::placeholders::_1));
-  // server.on("/r", HTTP_ANY, std::bind(&WebServerClass::handleR, this, std::placeholders::_1));
-  // server.on("/g", HTTP_ANY, std::bind(&WebServerClass::handleG, this, std::placeholders::_1));
-  // server.on("/b", HTTP_ANY, std::bind(&WebServerClass::handleB, this, std::placeholders::_1));
+  server.on("/getsettings", HTTP_ANY, std::bind(&WebServerClass::handleGetSettings, this, std::placeholders::_1));
+  server.on("/getadc", HTTP_ANY, std::bind(&WebServerClass::handleGetADC, this, std::placeholders::_1));
 
-  // server.on("/getsettings", HTTP_ANY, std::bind(&WebServerClass::handleGetSettings, this, std::placeholders::_1));
-  // server.on("/getadc", HTTP_ANY, std::bind(&WebServerClass::handleGetADC, this, std::placeholders::_1));
+  server.on("/saveconfig", HTTP_ANY, std::bind(&WebServerClass::handleSaveConfig, this, std::placeholders::_1));
+  server.on("/loadconfig", HTTP_ANY, std::bind(&WebServerClass::handleLoadConfig, this, std::placeholders::_1));
+  server.on("/resetconfig", HTTP_ANY, std::bind(&WebServerClass::handleResetConfig, this, std::placeholders::_1));
 
-  // server.on("/saveconfig", HTTP_ANY, std::bind(&WebServerClass::handleSaveConfig, this, std::placeholders::_1));
-  // server.on("/loadconfig", HTTP_ANY, std::bind(&WebServerClass::handleLoadConfig, this, std::placeholders::_1));
-  // server.on("/resetconfig", HTTP_ANY, std::bind(&WebServerClass::handleResetConfig, this, std::placeholders::_1));
+  server.on("/debug", HTTP_ANY, std::bind(&WebServerClass::handleDebug, this, std::placeholders::_1));
 
-  // server.on("/debug", HTTP_ANY, std::bind(&WebServerClass::handleDebug, this, std::placeholders::_1));
+  server.on("/setheartbeat", HTTP_ANY, std::bind(&WebServerClass::handleSetHeartbeat, this, std::placeholders::_1));
+  server.on("/setcolor", HTTP_ANY, std::bind(&WebServerClass::handleSetColor, this, std::placeholders::_1));
+  server.on("/setesist", HTTP_ANY, std::bind(&WebServerClass::handleSetEsIst, this, std::placeholders::_1));
+  server.on("/setntpserver", HTTP_ANY, std::bind(&WebServerClass::handleSetNtpServer, this, std::placeholders::_1));
+  server.on("/setbrightness", HTTP_ANY, std::bind(&WebServerClass::handleSetBrightness, this, std::placeholders::_1));
+  server.on("/setbrightnesstable", HTTP_ANY, std::bind(&WebServerClass::handleSetBrightnessTable, this, std::placeholders::_1));
+  server.on("/setmode", HTTP_ANY, std::bind(&WebServerClass::handleSetMode, this, std::placeholders::_1));
+  server.on("/settimezone", HTTP_ANY, std::bind(&WebServerClass::handleSetTimeZone, this, std::placeholders::_1));
+  server.on("/setdialect", HTTP_ANY, std::bind(&WebServerClass::handleSetDialect, this, std::placeholders::_1));
 
-  // server.on("/setheartbeat", HTTP_ANY, std::bind(&WebServerClass::handleSetHeartbeat, this, std::placeholders::_1));
-  // server.on("/setcolor", HTTP_ANY, std::bind(&WebServerClass::handleSetColor, this, std::placeholders::_1));
-  // server.on("/setesist", HTTP_ANY, std::bind(&WebServerClass::handleSetEsIst, this, std::placeholders::_1));
-  // server.on("/setntpserver", HTTP_ANY, std::bind(&WebServerClass::handleSetNtpServer, this, std::placeholders::_1));
-  // server.on("/setbrightness", HTTP_ANY, std::bind(&WebServerClass::handleSetBrightness, this, std::placeholders::_1));
-  // server.on("/setbrightnesstable", HTTP_ANY, std::bind(&WebServerClass::handleSetBrightnessTable, this, std::placeholders::_1));
-  // server.on("/setmode", HTTP_ANY, std::bind(&WebServerClass::handleSetMode, this, std::placeholders::_1));
-  // server.on("/settimezone", HTTP_ANY, std::bind(&WebServerClass::handleSetTimeZone, this, std::placeholders::_1));
-  // server.on("/setdialect", HTTP_ANY, std::bind(&WebServerClass::handleSetDialect, this, std::placeholders::_1));
-
-// Simple Firmware Update Form
-  server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Simple Firmware Update Form
+  server.on("/update", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
   });
-  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request){
+  server.on("/update", HTTP_POST, [](AsyncWebServerRequest *request) {
     shouldReboot = !Update.hasError();
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot?"OK":"FAIL");
     response->addHeader("Connection", "close");
-    request->send(response);
-  },[](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final){
+    request->send(response); }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     if(!index){
       Serial.printf("Update Start: %s\n", filename.c_str());
       Update.runAsync(true);
@@ -333,31 +342,24 @@ void WebServerClass::begin()
       } else {
         Update.printError(Serial);
       }
-    }
-  });
+    } });
 
-  server.onNotFound([](AsyncWebServerRequest *request){
+  server.onNotFound([](AsyncWebServerRequest *request) {
     request->send(404);
   });
 
+  //	this->server->on("/getheartbeat", std::bind(&WebServerClass::handleGetHeartbeat, this));
+  //  this->server->on("/getesist", std::bind(&WebServerClass::handleGetEsIst, this));
+  //	this->server->on("/getcolors", std::bind(&WebServerClass::handleGetColors, this));
+  //	this->server->on("/getntpserver", std::bind(&WebServerClass::handleGetNtpServer, this));
+  //  this->server->on("/getbrightness", std::bind(&WebServerClass::handleGetBrightness, this));
+  //	this->server->on("/getmode", std::bind(&WebServerClass::handleGetMode, this));
+  //  this->server->on("/gettimezone", std::bind(&WebServerClass::handleGetTimeZone, this));
+  //  this->server->on("/getdialect", std::bind(&WebServerClass::handleGetDialect, this));
 
-
-
-//	this->server->on("/getheartbeat", std::bind(&WebServerClass::handleGetHeartbeat, this));
-//  this->server->on("/getesist", std::bind(&WebServerClass::handleGetEsIst, this));
-//	this->server->on("/getcolors", std::bind(&WebServerClass::handleGetColors, this));
-//	this->server->on("/getntpserver", std::bind(&WebServerClass::handleGetNtpServer, this));
-//  this->server->on("/getbrightness", std::bind(&WebServerClass::handleGetBrightness, this));
-//	this->server->on("/getmode", std::bind(&WebServerClass::handleGetMode, this));
-//  this->server->on("/gettimezone", std::bind(&WebServerClass::handleGetTimeZone, this));
-//  this->server->on("/getdialect", std::bind(&WebServerClass::handleGetDialect, this));
-
-
-
-  	server.begin();
-    Serial.println("Started Server");
+  server.begin();
+  Serial.println("Started Server");
 }
-
 
 //---------------------------------------------------------------------------------------
 // handleM
@@ -370,8 +372,9 @@ void WebServerClass::begin()
 extern int h, m;
 void WebServerClass::handleM(AsyncWebServerRequest *request)
 {
-	if(++m>59) m = 0;
-	request->send(200, "text/plain", "OK");
+  if (++m > 59)
+    m = 0;
+  request->send(200, "text/plain", "OK");
 }
 
 //---------------------------------------------------------------------------------------
@@ -384,8 +387,9 @@ void WebServerClass::handleM(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleH(AsyncWebServerRequest *request)
 {
-	if(++h>23) h = 0;
-	request->send(200, "text/plain", "OK");
+  if (++h > 23)
+    h = 0;
+  request->send(200, "text/plain", "OK");
 }
 
 //---------------------------------------------------------------------------------------
@@ -398,8 +402,8 @@ void WebServerClass::handleH(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleR(AsyncWebServerRequest *request)
 {
-	// LED.setMode(DisplayMode::red);
-	request->send(200, "text/plain", "OK");
+  // LED.setMode(DisplayMode::red);
+  request->send(200, "text/plain", "OK");
 }
 
 //---------------------------------------------------------------------------------------
@@ -412,8 +416,8 @@ void WebServerClass::handleR(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleG(AsyncWebServerRequest *request)
 {
-	// LED.setMode(DisplayMode::green);
-	request->send(200, "text/plain", "OK");
+  // LED.setMode(DisplayMode::green);
+  request->send(200, "text/plain", "OK");
 }
 
 //---------------------------------------------------------------------------------------
@@ -426,8 +430,8 @@ void WebServerClass::handleG(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleB(AsyncWebServerRequest *request)
 {
-	// LED.setMode(DisplayMode::blue);
-	request->send(200, "text/plain", "OK");
+  // LED.setMode(DisplayMode::blue);
+  request->send(200, "text/plain", "OK");
 }
 
 //void WebServerClass::handleGetBrightness()
@@ -435,82 +439,83 @@ void WebServerClass::handleB(AsyncWebServerRequest *request)
 //  request->send(200, "text/plain", String(Brightness.brightnessOverride));
 //}
 
-
 void WebServerClass::handleSetBrightness(AsyncWebServerRequest *request)
 {
-	if(request->hasArg("value"))
-	{
-		// Config.brightnessOverride = request->arg("value").toInt();
-		request->send(200, "text/plain", "OK");
-    this->ws.textAll("{\"brightness\":\""+request->arg("value")+"\"}");
-	}
+  if (request->hasArg("value"))
+  {
+    // Config.brightnessOverride = request->arg("value").toInt();
+    request->send(200, "text/plain", "OK");
+    this->ws.textAll("{\"brightness\":\"" + request->arg("value") + "\"}");
+  }
 }
-
 
 void WebServerClass::handleSetBrightnessTable(AsyncWebServerRequest *request)
 {
-  if(request->hasArg("value"))
+  if (request->hasArg("value"))
   {
-    
-    for (int i = 0; i < 6; i++){
-      String value = getValue(request->arg("value"),',',i);
-      if (value == ""){
+
+    for (int i = 0; i < 6; i++)
+    {
+      String value = getValue(request->arg("value"), ',', i);
+      if (value == "")
+      {
         // Config.brightnessTable[i] = 255;
-      }else{
+      }
+      else
+      {
         // Config.brightnessTable[i] = value.toInt();
       }
     }
-    
+
     request->send(200, "text/plain", "OK");
-    this->ws.textAll("{\"brightnessTable\":\""+request->arg("value")+"\"}");
+    this->ws.textAll("{\"brightnessTable\":\"" + request->arg("value") + "\"}");
   }
 }
 
 void WebServerClass::handleDebug(AsyncWebServerRequest *request)
 {
-	// if(request->hasArg("led") &&
-	// 		   request->hasArg("r") &&
-	// 		   request->hasArg("g") &&
-	// 		   request->hasArg("b"))
-	// {
-		// int led = request->arg("led").toInt();
-		// int r = request->arg("r").toInt();
-		// int g = request->arg("g").toInt();
-		// int b = request->arg("b").toInt();
-		// if(led < 0) led = 0;
-		// if(led >= NUM_PIXELS) led = NUM_PIXELS - 1;
-		// if(r < 0) r = 0;
-		// if(r > 255) r = 255;
-		// if(g < 0) g = 0;
-		// if(g > 255) g = 255;
-		// if(b < 0) b = 0;
-		// if(b > 255) b = 255;
+  // if(request->hasArg("led") &&
+  // 		   request->hasArg("r") &&
+  // 		   request->hasArg("g") &&
+  // 		   request->hasArg("b"))
+  // {
+  // int led = request->arg("led").toInt();
+  // int r = request->arg("r").toInt();
+  // int g = request->arg("g").toInt();
+  // int b = request->arg("b").toInt();
+  // if(led < 0) led = 0;
+  // if(led >= NUM_PIXELS) led = NUM_PIXELS - 1;
+  // if(r < 0) r = 0;
+  // if(r > 255) r = 255;
+  // if(g < 0) g = 0;
+  // if(g > 255) g = 255;
+  // if(b < 0) b = 0;
+  // if(b > 255) b = 255;
 
-		// LED.currentValues[led*3+0] = r;
-		// LED.currentValues[led*3+1] = g;
-		// LED.currentValues[led*3+2] = b;
-		// LED.show();
-	// 	Config.debugMode = 1;
-	// }
+  // LED.currentValues[led*3+0] = r;
+  // LED.currentValues[led*3+1] = g;
+  // LED.currentValues[led*3+2] = b;
+  // LED.show();
+  // 	Config.debugMode = 1;
+  // }
 
-	if(request->hasArg("clear"))
-	{
-		// for(int i=0; i<3*NUM_PIXELS; i++) LED.currentValues[i] = 0;
-		// LED.show();
-	}
+  if (request->hasArg("clear"))
+  {
+    // for(int i=0; i<3*NUM_PIXELS; i++) LED.currentValues[i] = 0;
+    // LED.show();
+  }
 
-	if(request->hasArg("end"))
-	{
-		Config.debugMode = 0;
-	}
-	request->send(200, "text/plain", "OK");
+  if (request->hasArg("end"))
+  {
+    Config.debugMode = 0;
+  }
+  request->send(200, "text/plain", "OK");
 }
-
 
 void WebServerClass::handleGetADC(AsyncWebServerRequest *request)
 {
-	// int __attribute__ ((unused)) temp = Brightness.value(); // to trigger A/D conversion
-	// request->send(200, "text/plain", String(Brightness.avg));
+  // int __attribute__ ((unused)) temp = Brightness.value(); // to trigger A/D conversion
+  // request->send(200, "text/plain", String(Brightness.avg));
 }
 
 //---------------------------------------------------------------------------------------
@@ -523,17 +528,19 @@ void WebServerClass::handleGetADC(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetTimeZone(AsyncWebServerRequest *request)
 {
-	if(request->hasArg("value"))
-	{
-		int newTimeZone = request->arg("value").toInt();
-		if(newTimeZone < - 12) newTimeZone = -12;
-		if(newTimeZone > 14) newTimeZone = 14;
-		Config.timeZone = newTimeZone;
-		Config.save();
-		NTP.setTimeZone(Config.timeZone);
-	}
-	request->send(200, "text/plain", "OK");
-  this->ws.textAll("{\"timezone\":\""+request->arg("value")+"\"}");
+  if (request->hasArg("value"))
+  {
+    int newTimeZone = request->arg("value").toInt();
+    if (newTimeZone < -12)
+      newTimeZone = -12;
+    if (newTimeZone > 14)
+      newTimeZone = 14;
+    Config.timeZone = newTimeZone;
+    Config.save();
+    NTP.setTimeZone(Config.timeZone);
+  }
+  request->send(200, "text/plain", "OK");
+  this->ws.textAll("{\"timezone\":\"" + request->arg("value") + "\"}");
 }
 
 ////---------------------------------------------------------------------------------------
@@ -559,7 +566,7 @@ void WebServerClass::handleSetTimeZone(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
 {
-  if(request->hasArg("value"))
+  if (request->hasArg("value"))
   {
     int newDialect = request->arg("value").toInt();
     Config.dialect = newDialect;
@@ -567,7 +574,7 @@ void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
     // LED.changeDialect(Config.dialect);
   }
   request->send(200, "text/plain", "OK");
-  this->ws.textAll("{\"dialect\":\""+request->arg("value")+"\"}");
+  this->ws.textAll("{\"dialect\":\"" + request->arg("value") + "\"}");
 }
 
 ////---------------------------------------------------------------------------------------
@@ -595,32 +602,35 @@ void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
 {
-	// DisplayMode mode = DisplayMode::invalid;
+  DisplayMode mode = DisplayMode::invalid;
 
-	if(request->hasArg("value"))
-	{
-		// handle each allowed value for safety
-		// if(request->arg("value") == "0") mode = DisplayMode::plain;
-		// if(request->arg("value") == "1") mode = DisplayMode::fade;
-		// if(request->arg("value") == "2") mode = DisplayMode::flyingLettersVerticalUp;
-		// if(request->arg("value") == "3") mode = DisplayMode::flyingLettersVerticalDown;
-		// if(request->arg("value") == "4") mode = DisplayMode::explode;
-	}
+  if (request->hasArg("value"))
+  {
+    // handle each allowed value for safety
+    if (request->arg("value") == "0")
+      mode = DisplayMode::plain;
+    if (request->arg("value") == "1")
+      mode = DisplayMode::fade;
+    if (request->arg("value") == "2")
+      mode = DisplayMode::flyingLettersVerticalUp;
+    if (request->arg("value") == "3")
+      mode = DisplayMode::flyingLettersVerticalDown;
+    if (request->arg("value") == "4")
+      mode = DisplayMode::explode;
+  }
 
-	// if(mode == DisplayMode::invalid)
-	// {
-	// 	request->send(400, "text/plain", "ERR");
-	// }
-	// else
-	// {
-	// 	LED.setMode(mode);
-	// 	Config.defaultMode = mode;
-	// 	//Config.save();
-		request->send(200, "text/plain", "OK");
-
-    this->ws.textAll("{\"mode\":\""+request->arg("value")+"\"}");
-	
-
+  if (mode == DisplayMode::invalid)
+  {
+    request->send(400, "text/plain", "ERR");
+  }
+  else
+  {
+    // 	LED.setMode(mode);
+    Config.defaultMode = mode;
+    Config.save();
+    request->send(200, "text/plain", "OK");
+  }
+  this->ws.textAll("{\"mode\":\"" + request->arg("value") + "\"}");
 }
 ////---------------------------------------------------------------------------------------
 //// handleGetMode
@@ -704,22 +714,21 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetNtpServer(AsyncWebServerRequest *request)
 {
-	if (request->hasArg("ip"))
-	{
-		IPAddress ip;
-		if (ip.fromString(request->arg("ip")))
-		{
-			// set IP address in config
-			Config.ntpserver = ip;
-			Config.save();
+  if (request->hasArg("ip"))
+  {
+    IPAddress ip;
+    if (ip.fromString(request->arg("ip")))
+    {
+      // set IP address in config
+      Config.ntpserver = ip;
+      Config.save();
 
-			// set IP address in client
-			NTP.setServer(ip);
-		}
-	}
-	request->send(200, "application/json", "OK");
-  this->ws.textAll("{\"ntp\":\""+request->arg("ip")+"\"}");
-
+      // set IP address in client
+      NTP.setServer(ip);
+    }
+  }
+  request->send(200, "application/json", "OK");
+  this->ws.textAll("{\"ntp\":\"" + request->arg("ip") + "\"}");
 }
 
 //---------------------------------------------------------------------------------------
@@ -732,65 +741,68 @@ void WebServerClass::handleSetNtpServer(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleInfo(AsyncWebServerRequest *request)
 {
-    Serial.println("Info timer");
-	StaticJsonBuffer<512> jsonBuffer;
-	char buf[512];
-	JsonObject& json = jsonBuffer.createObject();
-	json["heap"] = ESP.getFreeHeap();
-	json["sketchsize"] = ESP.getSketchSize();
-	json["sketchspace"] = ESP.getFreeSketchSpace();
-	json["cpufrequency"] = ESP.getCpuFreqMHz();
-	json["chipid"] = ESP.getChipId();
-	json["sdkversion"] = ESP.getSdkVersion();
-	json["bootversion"] = ESP.getBootVersion();
-	json["bootmode"] = ESP.getBootMode();
-	json["flashid"] = ESP.getFlashChipId();
-	json["flashspeed"] = ESP.getFlashChipSpeed();
-	json["flashsize"] = ESP.getFlashChipRealSize();
-	json["resetreason"] = ESP.getResetReason();
-	json["resetinfo"] = ESP.getResetInfo();
-//	switch(LED.getMode())
-//	{
-//	case DisplayMode::plain:
-//		json["mode"] = "plain"; break;
-//	case DisplayMode::fade:
-//		json["mode"] = "fade"; break;
-//	case DisplayMode::flyingLettersVertical:
-//		json["mode"] = "flyingLettersVertical"; break;
-//	case DisplayMode::matrix:
-//		json["mode"] = "matrix"; break;
-//	case DisplayMode::heart:
-//		json["mode"] = "heart"; break;
-//	case DisplayMode::stars:
-//		json["mode"] = "stars"; break;
-//	case DisplayMode::red:
-//		json["mode"] = "red"; break;
-//	case DisplayMode::green:
-//		json["mode"] = "green"; break;
-//	case DisplayMode::blue:
-//		json["mode"] = "blue"; break;
-//	case DisplayMode::yellowHourglass:
-//		json["mode"] = "yellowHourglass"; break;
-//	case DisplayMode::greenHourglass:
-//		json["mode"] = "greenHourglass"; break;
-//	case DisplayMode::update:
-//		json["mode"] = "update"; break;
-//	case DisplayMode::updateComplete:
-//		json["mode"] = "updateComplete"; break;
-//	case DisplayMode::updateError:
-//		json["mode"] = "updateError"; break;
-//	case DisplayMode::wifiManager:
-//		json["mode"] = "wifiManager"; break;
-//	default:
-//		json["mode"] = "unknown"; break;
-//	}
+  Serial.println("Info timer");
+  StaticJsonBuffer<512> jsonBuffer;
+  char buf[512];
+  JsonObject &json = jsonBuffer.createObject();
+  json["heap"] = ESP.getFreeHeap();
+  json["sketchsize"] = ESP.getSketchSize();
+  json["sketchspace"] = ESP.getFreeSketchSpace();
+  json["cpufrequency"] = ESP.getCpuFreqMHz();
+  json["chipid"] = ESP.getChipId();
+  json["sdkversion"] = ESP.getSdkVersion();
+  json["bootversion"] = ESP.getBootVersion();
+  json["bootmode"] = ESP.getBootMode();
+  json["flashid"] = ESP.getFlashChipId();
+  json["flashspeed"] = ESP.getFlashChipSpeed();
+  json["flashsize"] = ESP.getFlashChipRealSize();
+  json["resetreason"] = ESP.getResetReason();
+  json["resetinfo"] = ESP.getResetInfo();
+  //	switch(LED.getMode())
+  //	{
+  //	case DisplayMode::plain:
+  //		json["mode"] = "plain"; break;
+  //	case DisplayMode::fade:
+  //		json["mode"] = "fade"; break;
+  //	case DisplayMode::flyingLettersVertical:
+  //		json["mode"] = "flyingLettersVertical"; break;
+  //	case DisplayMode::matrix:
+  //		json["mode"] = "matrix"; break;
+  //	case DisplayMode::heart:
+  //		json["mode"] = "heart"; break;
+  //	case DisplayMode::stars:
+  //		json["mode"] = "stars"; break;
+  //	case DisplayMode::red:
+  //		json["mode"] = "red"; break;
+  //	case DisplayMode::green:
+  //		json["mode"] = "green"; break;
+  //	case DisplayMode::blue:
+  //		json["mode"] = "blue"; break;
+  //	case DisplayMode::yellowHourglass:
+  //		json["mode"] = "yellowHourglass"; break;
+  //	case DisplayMode::greenHourglass:
+  //		json["mode"] = "greenHourglass"; break;
+  //	case DisplayMode::update:
+  //		json["mode"] = "update"; break;
+  //	case DisplayMode::updateComplete:
+  //		json["mode"] = "updateComplete"; break;
+  //	case DisplayMode::updateError:
+  //		json["mode"] = "updateError"; break;
+  //	case DisplayMode::wifiManager:
+  //		json["mode"] = "wifiManager"; break;
+  //	default:
+  //		json["mode"] = "unknown"; break;
+  //	}
 
-	if (request->hasArg("pretty")){
+  if (request->hasArg("pretty"))
+  {
     json.prettyPrintTo(buf, sizeof(buf));
-  } else {
+  }
+  else
+  {
     json.printTo(buf, sizeof(buf));
   }
-	request->send(200, "application/json", buf);
+  request->send(200, "application/json", buf);
 }
 
 //---------------------------------------------------------------------------------------
@@ -801,21 +813,21 @@ void WebServerClass::handleInfo(AsyncWebServerRequest *request)
 //	result: Pointer to palette_entry struct to receive result
 // <- --
 //---------------------------------------------------------------------------------------
-void WebServerClass::extractColor(AsyncWebServerRequest *request, String argName, palette_entry& result)
-{
-	// char c[3];
+// void WebServerClass::extractColor(AsyncWebServerRequest *request, String argName, palette_entry &result)
+// {
+// char c[3];
 
-	// if (request->hasArg(argName.c_str()) && request->arg(argName).length() == 6)
-	// {
-		// String color = request->arg(argName);
-		// color.substring(0, 2).toCharArray(c, sizeof(c));
-		// result.r = strtol(c, NULL, 16);
-		// color.substring(2, 4).toCharArray(c, sizeof(c));
-		// result.g = strtol(c, NULL, 16);
-		// color.substring(4, 6).toCharArray(c, sizeof(c));
-		// result.b = strtol(c, NULL, 16);
-	// }
-}
+// if (request->hasArg(argName.c_str()) && request->arg(argName).length() == 6)
+// {
+// String color = request->arg(argName);
+// color.substring(0, 2).toCharArray(c, sizeof(c));
+// result.r = strtol(c, NULL, 16);
+// color.substring(2, 4).toCharArray(c, sizeof(c));
+// result.g = strtol(c, NULL, 16);
+// color.substring(4, 6).toCharArray(c, sizeof(c));
+// result.b = strtol(c, NULL, 16);
+// }
+// }
 
 //---------------------------------------------------------------------------------------
 // handleSetColor
@@ -829,20 +841,16 @@ void WebServerClass::extractColor(AsyncWebServerRequest *request, String argName
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetColor(AsyncWebServerRequest *request)
 {
-	this->extractColor(request, "fg", Config.fg);
-	this->extractColor(request, "bg", Config.bg);
-	this->extractColor(request, "s" , Config.s );
-	request->send(200, "text/plain", "OK");
+  // this->extractColor(request, "fg", Config.fg);
+  // this->extractColor(request, "bg", Config.bg);
+  // this->extractColor(request, "s", Config.s);
+  request->send(200, "text/plain", "OK");
 
   Config.saveDelayed();
 
-  String message = String("{\"colors\":\"")+String(Config.bg.r) + "," + String(Config.bg.g) + ","
-      + String(Config.bg.b) + "," + String(Config.fg.r) + ","
-      + String(Config.fg.g) + "," + String(Config.fg.b) + ","
-      + String(Config.s.r) + "," + String(Config.s.g) + ","
-      + String(Config.s.b) + String("\"}");
- 
-  this->ws.textAll(message);
+  // String message = String("{\"colors\":\"") + String(Config.bg.r) + "," + String(Config.bg.g) + "," + String(Config.bg.b) + "," + String(Config.fg.r) + "," + String(Config.fg.g) + "," + String(Config.fg.b) + "," + String(Config.s.r) + "," + String(Config.s.g) + "," + String(Config.s.b) + String("\"}");
+
+  // this->ws.textAll(message);
 }
 
 //---------------------------------------------------------------------------------------
@@ -857,55 +865,60 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 {
   StaticJsonBuffer<512> jsonBuffer;
   char buf[512];
-  
-  JsonObject& json = jsonBuffer.createObject();
 
-  String color = String(Config.bg.r) + "," + String(Config.bg.g) + ","
-                  + String(Config.bg.b) + "," + String(Config.fg.r) + ","
-                  + String(Config.fg.g) + "," + String(Config.fg.b) + ","
-                  + String(Config.s.r) + "," + String(Config.s.g) + ","
-                  + String(Config.s.b);
+  JsonObject &json = jsonBuffer.createObject();
 
-  json["colors"] = color;
+  // String color = String(Config.bg.r) + "," + String(Config.bg.g) + "," + String(Config.bg.b) + "," + String(Config.fg.r) + "," + String(Config.fg.g) + "," + String(Config.fg.b) + "," + String(Config.s.r) + "," + String(Config.s.g) + "," + String(Config.s.b);
+
+  // json["colors"] = color;
 
   json["ntp"] = Config.ntpserver.toString();
 
+  // String bT = String(Config.brightnessTable[0]) + "," +
+  //             String(Config.brightnessTable[1]) + "," +
+  //             String(Config.brightnessTable[2]) + "," +
+  //             String(Config.brightnessTable[3]) + "," +
+  //             String(Config.brightnessTable[4]) + "," +
+  //             String(Config.brightnessTable[5]);
 
-  String bT = String(Config.brightnessTable[0]) + "," +
-              String(Config.brightnessTable[1]) + "," +
-              String(Config.brightnessTable[2]) + "," +
-              String(Config.brightnessTable[3]) + "," +
-              String(Config.brightnessTable[4]) + "," +
-              String(Config.brightnessTable[5]);
+  // json["brightnessTable"] = bT;
 
-  json["brightnessTable"] = bT;
-  
   int mode = 0;
-  switch(Config.defaultMode)
+  switch (Config.defaultMode)
   {
   case DisplayMode::plain:
-    mode = 0; break;
+    mode = 0;
+    break;
   case DisplayMode::fade:
-    mode = 1; break;
+    mode = 1;
+    break;
   case DisplayMode::flyingLettersVerticalUp:
-    mode = 2; break;
+    mode = 2;
+    break;
   case DisplayMode::flyingLettersVerticalDown:
-    mode = 3; break;
+    mode = 3;
+    break;
   case DisplayMode::explode:
-    mode = 4; break;
+    mode = 4;
+    break;
   default:
-    mode = 0; break;
+    mode = 0;
+    break;
   }
 
   json["mode"] = String(mode);
 
-  if(Config.heartbeat) json["heartbeat"] = "1";
-  else json["heartbeat"] = "0"  ;
-        
-  if(Config.esIst) json["esIst"] = "1";
-  else json["esIst"] = "0";
+  if (Config.heartbeat)
+    json["heartbeat"] = "1";
+  else
+    json["heartbeat"] = "0";
 
-  json["dialect"] =  String(Config.dialect);
+  // if (Config.esIst)
+  //   json["esIst"] = "1";
+  // else
+  //   json["esIst"] = "0";
+
+  json["dialect"] = String(Config.dialect);
   json["timezone"] = String(Config.timeZone);
   // json["brightness"] = String(Config.brightnessOverride);
 
@@ -914,15 +927,17 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 
   json["test"] = "pass";
 
-  if (request->hasArg("pretty")){
+  if (request->hasArg("pretty"))
+  {
     json.prettyPrintTo(buf, sizeof(buf));
-  } else {
+  }
+  else
+  {
     json.printTo(buf, sizeof(buf));
   }
-  
+
   request->send(200, "application/json", buf);
 }
-
 
 //---------------------------------------------------------------------------------------
 // handleSaveConfig
@@ -934,8 +949,8 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSaveConfig(AsyncWebServerRequest *request)
 {
-	Config.save();
-	request->send(200, "text/plain", "OK");
+  Config.save();
+  request->send(200, "text/plain", "OK");
 }
 
 //---------------------------------------------------------------------------------------
@@ -948,8 +963,8 @@ void WebServerClass::handleSaveConfig(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleLoadConfig(AsyncWebServerRequest *request)
 {
-	Config.load();
-	request->send(200, "text/plain", "OK");
+  Config.load();
+  request->send(200, "text/plain", "OK");
 }
 
 //---------------------------------------------------------------------------------------
@@ -976,10 +991,10 @@ void WebServerClass::handleResetConfig(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetHeartbeat(AsyncWebServerRequest *request)
 {
-	Config.heartbeat = (request->hasArg("value") && request->arg("value") == "1");
-	Config.save();
-	request->send(200, "text/plain", "OK");
-  this->ws.textAll("{\"heartbeat\":\""+request->arg("value")+"\"}");
+  Config.heartbeat = (request->hasArg("value") && request->arg("value") == "1");
+  Config.save();
+  request->send(200, "text/plain", "OK");
+  this->ws.textAll("{\"heartbeat\":\"" + request->arg("value") + "\"}");
 }
 
 ////---------------------------------------------------------------------------------------
@@ -1006,11 +1021,11 @@ void WebServerClass::handleSetHeartbeat(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetEsIst(AsyncWebServerRequest *request)
 {
-  Config.esIst = (request->hasArg("value") && request->arg("value") == "1");
+  // Config.esIst = (request->hasArg("value") && request->arg("value") == "1");
   Config.save();
   request->send(200, "text/plain", "OK");
-  
-  this->ws.textAll("{\"esIst\":\""+request->arg("value")+"\"}");
+
+  this->ws.textAll("{\"esIst\":\"" + request->arg("value") + "\"}");
 }
 
 ////---------------------------------------------------------------------------------------
@@ -1046,6 +1061,3 @@ void WebServerClass::handleSetEsIst(AsyncWebServerRequest *request)
 //			+ String(Config.s.b);
 //	request->send(200, "text/plain", message);
 //}
-
-
-

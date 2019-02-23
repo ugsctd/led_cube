@@ -74,7 +74,7 @@ void ConfigClass::save()
   
 	this->config->timeZone = this->timeZone;
   this->config->dialect = this->dialect;
-	// this->config->heartbeat = this->heartbeat;
+	this->config->heartbeat = this->heartbeat;
   // this->config->esIst = this->esIst;
 	this->config->mode = (uint32_t) this->defaultMode;
 	for (int i = 0; i < 4; i++)
@@ -98,8 +98,8 @@ void ConfigClass::reset()
 	this->config->magic = 0xDEADBEEF;
 
 
-	// this->config->heartbeat = false;
-	// this->heartbeat = this->config->heartbeat;
+	this->config->heartbeat = false;
+	this->heartbeat = this->config->heartbeat;
 
   // this->config->esIst = true;
   // this->esIst = this->config->esIst;
@@ -144,7 +144,7 @@ void ConfigClass::load()
 		this->save();
 	}
 	this->defaultMode = (DisplayMode) this->config->mode;
-	// this->heartbeat = this->config->heartbeat;
+	this->heartbeat = this->config->heartbeat;
   // this->esIst = this->config->esIst;
 	this->timeZone = this->config->timeZone;
   this->dialect = this->config->dialect;

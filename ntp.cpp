@@ -25,7 +25,7 @@
 // https://github.com/sandeepmistry/esp8266-Arduino/blob/master/esp8266com/esp8266/libraries/ESP8266WiFi/examples/NTPClient
 #include <Arduino.h>
 #include <limits.h>
-#include "ntp.h"
+#include <ntp.h>
 
 //---------------------------------------------------------------------------------------
 // CONSTANTS

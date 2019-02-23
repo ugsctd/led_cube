@@ -5,13 +5,12 @@
 #include <Ticker.h>
 #include <ESPAsyncWiFiManager.h>
 
-// #include "ledfunctions.h"
-// #include "brightness.h"
+
 #include "ntp.h"
 #include "webserver.h"
 #include "config.h"
 #include "osapi.h"
-#include "cube_example.h"
+#include "cube.h"
 // LEDFunctionsClass LED = LEDFunctionsClass();
 #define PRODUCTION
 #ifndef PRODUCTION
@@ -29,9 +28,9 @@ bool debug = false;
 
 #endif
 
-#define LED_RED		15
-#define LED_GREEN	12
-#define LED_BLUE	13
+// #define LED_RED		15
+// #define LED_GREEN	12
+// #define LED_BLUE	13
 #define LED_BUILTIN	2
 
 extern bool shouldReboot;
@@ -44,7 +43,7 @@ int OTA_in_progress = 0;
 // Timer related variables
 //---------------------------------------------------------------------------------------
 #define TIMER_RESOLUTION 10
-#define HOURGLASS_ANIMATION_PERIOD 100
+// #define HOURGLASS_ANIMATION_PERIOD 100
 Ticker timer;
 int h = 0;
 int m = 0;
@@ -98,12 +97,12 @@ void timerCallback()
   if (ms == 0 && Config.heartbeat) digitalWrite(LED_BUILTIN, LOW);
   else digitalWrite(LED_BUILTIN, HIGH);
 
-  hourglassPrescaler += TIMER_RESOLUTION;
-  if (hourglassPrescaler >= HOURGLASS_ANIMATION_PERIOD)
+  // hourglassPrescaler += TIMER_RESOLUTION;
+  // if (hourglassPrescaler >= HOURGLASS_ANIMATION_PERIOD)
   {
-    hourglassPrescaler -= HOURGLASS_ANIMATION_PERIOD;
-    if (++Config.hourglassState >= HOURGLASS_ANIMATION_FRAMES)
-      Config.hourglassState = 0;
+    // hourglassPrescaler -= HOURGLASS_ANIMATION_PERIOD;
+    // if (++Config.hourglassState >= HOURGLASS_ANIMATION_FRAMES)
+      // Config.hourglassState = 0;
 
     // trigger LED processing for hourglass during startup
   //  if (startup) LED.process();
