@@ -57,7 +57,7 @@ void ConfigClass::begin()
 //---------------------------------------------------------------------------------------
 void ConfigClass::saveDelayed()
 {
-  this->delayedWriteTimer = 1000; // 10 seconds using 10 ms timer
+	this->delayedWriteTimer = 1000; // 10 seconds using 10 ms timer
 }
 
 //---------------------------------------------------------------------------------------
@@ -70,13 +70,14 @@ void ConfigClass::saveDelayed()
 //---------------------------------------------------------------------------------------
 void ConfigClass::save()
 {
-  this->delayedWriteFlag = false;
-  
+	this->delayedWriteFlag = false;
+
 	this->config->timeZone = this->timeZone;
-  this->config->dialect = this->dialect;
+	this->config->delay = this->delay;
+	this->config->dialect = this->dialect;
 	this->config->heartbeat = this->heartbeat;
-  // this->config->esIst = this->esIst;
-	this->config->mode = (uint32_t) this->defaultMode;
+	// this->config->esIst = this->esIst;
+	this->config->mode = (uint32_t)this->defaultMode;
 	for (int i = 0; i < 4; i++)
 		this->config->ntpserver[i] = this->ntpserver[i];
 
@@ -97,19 +98,21 @@ void ConfigClass::reset()
 {
 	this->config->magic = 0xDEADBEEF;
 
+	this->config->delay = 40;
+	this->delay = this->config->delay;
 
 	this->config->heartbeat = false;
 	this->heartbeat = this->config->heartbeat;
 
-  // this->config->esIst = true;
-  // this->esIst = this->config->esIst;
+	// this->config->esIst = true;
+	// this->esIst = this->config->esIst;
 
 	this->defaultMode = DisplayMode::plain;
-	this->config->mode = (uint32_t) this->defaultMode;
+	this->config->mode = (uint32_t)this->defaultMode;
 	this->timeZone = 0;
- 
-  this->dialect = 0;
-  this->config->dialect = this->dialect;
+
+	this->dialect = 0;
+	this->config->dialect = this->dialect;
 
 	this->config->ntpserver[0] = 192;
 	this->config->ntpserver[1] = 53;
@@ -119,7 +122,6 @@ void ConfigClass::reset()
 	this->ntpserver[1] = this->config->ntpserver[1];
 	this->ntpserver[2] = this->config->ntpserver[2];
 	this->ntpserver[3] = this->config->ntpserver[3];
-
 }
 
 //---------------------------------------------------------------------------------------
@@ -143,11 +145,12 @@ void ConfigClass::load()
 		this->reset();
 		this->save();
 	}
-	this->defaultMode = (DisplayMode) this->config->mode;
+	this->defaultMode = (DisplayMode)this->config->mode;
 	this->heartbeat = this->config->heartbeat;
-  // this->esIst = this->config->esIst;
+	this->delay = this->config->delay;
+	// this->esIst = this->config->esIst;
 	this->timeZone = this->config->timeZone;
-  this->dialect = this->config->dialect;
+	this->dialect = this->config->dialect;
 	for (int i = 0; i < 4; i++)
 		this->ntpserver[i] = this->config->ntpserver[i];
 }

@@ -38,10 +38,14 @@ class CubeClass
     void say(char *what);
     void printLetter(char letter);
     void loopcube();
-    void DemoALL_ON(unsigned char *pCube);
-    void DemoALL_OFF(unsigned char *pCube);
-    void DemoRise(unsigned char *pCube);
-    void DemoFall(unsigned char *pCube);
+    void DemoALL_ON();
+    void DemoALL_OFF();
+    void DemoRise();
+    void DemoFall();
+    // void DemoALL_ON(unsigned char *pCube);
+    // void DemoALL_OFF(unsigned char *pCube);
+    // void DemoRise(unsigned char *pCube);
+    // void DemoFall(unsigned char *pCube);
 
   private:
     void funPrintCube(unsigned char *p);

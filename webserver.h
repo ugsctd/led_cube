@@ -64,9 +64,9 @@ private:
 	void handleG(AsyncWebServerRequest *request);
 	void handleB(AsyncWebServerRequest *request);
 	void handleDebug(AsyncWebServerRequest *request);
-	void handleGetBrightness();
-	void handleSetBrightness(AsyncWebServerRequest *request);
-	void handleSetBrightnessTable(AsyncWebServerRequest *request);
+	void handleSetDelay(AsyncWebServerRequest *request);
+	void handleLetter(AsyncWebServerRequest *request);
+	void handleOff(AsyncWebServerRequest *request);
 	void handleGetADC(AsyncWebServerRequest *request);
 	void handleGetNtpServer();
 	void handleSetNtpServer(AsyncWebServerRequest *request);

@@ -32,6 +32,7 @@ typedef struct _config_struct
 	uint8_t ntpserver[4];
 
 	bool heartbeat;
+	int delay;
 	// bool esIst;
 	uint32_t mode;
 	uint32_t timeZone;
@@ -67,7 +68,7 @@ enum class DisplayMode
 
 class ConfigClass
 {
-public:
+  public:
 	// public methods
 	ConfigClass();
 	virtual ~ConfigClass();
@@ -80,6 +81,7 @@ public:
 	// public configuration variables
 	IPAddress ntpserver = IPAddress(0, 0, 0, 0);
 	bool heartbeat = false;
+	bool delay = 100;
 	// bool esIst = true;
 	bool debugMode = false;
 
@@ -91,7 +93,7 @@ public:
 	bool delayedWriteFlag = false;
 	int dialect = 0;
 
-private:
+  private:
 	// copy of EEPROM content
 	config_struct *config = (config_struct *)eeprom_data;
 	uint8_t eeprom_data[EEPROM_SIZE];

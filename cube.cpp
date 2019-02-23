@@ -1,18 +1,9 @@
 #include <Arduino.h>
 #include <stdint.h>
-#include <SoftwareSerial.h>
 #include <HardwareSerial.h>
-// #include <cube.h>
 #include "cube.h"
-// #define LAYER_COUNT 8
-// #define COLUMN_COUNT 64
-// byte pCube[COLUMN_COUNT];
+#include "config.h"
 
-// byte letter_T[64]{0x00, 0x60, 0x60, 0x7E, 0x60, 0x60, 0x00}; //T
-// byte letter_B[64]{0x1E, 0x22, 0x22, 0x1E, 0x22, 0x22, 0x1E}; //B
-
-// int cube = 1;
-// bool go = true;
 //---------------------------------------------------------------------------------------
 // global instance
 //---------------------------------------------------------------------------------------
@@ -56,7 +47,7 @@ void CubeClass::setup(bool altSerial)
     unsigned char i;
     delay(1000);
     altTx = altSerial;
-    if (altTx) //??
+    if (altTx)
         Serial1.begin(38400);
     else
         Serial.begin(38400);
@@ -64,7 +55,7 @@ void CubeClass::setup(bool altSerial)
     for (i = 0; i < 10; i++)
     {
         delay(100);
-        if (altTx) //??
+        if (altTx)
             Serial1.write(0xAD);
         else
             Serial.write(0xAD);
@@ -79,7 +70,7 @@ void CubeClass::setup(bool altSerial)
 // -> what: what to say
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::say(char * what)
+void CubeClass::say(char *what)
 {
     // printLetter(what);
 }
@@ -95,7 +86,7 @@ void CubeClass::say(char * what)
 void CubeClass::printLetter(char letter)
 {
     unsigned char j;
-    j = 10;
+    j = 20;
     while (j--)
     {
         switch (letter)
@@ -120,9 +111,9 @@ void CubeClass::printLetter(char letter)
 //---------------------------------------------------------------------------------------
 void CubeClass::loopcube()
 {
-    DemoALL_OFF(pCube);
-    DemoRise(pCube);
-    DemoALL_ON(pCube);
+    //    DemoALL_OFF(pCube);
+    DemoRise();
+    //    DemoALL_ON(pCube);
 }
 
 //---------------------------------------------------------------------------------------
@@ -133,7 +124,8 @@ void CubeClass::loopcube()
 // -> altSerial: true means using Serial1 on D4 (GPIO2)
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoALL_ON(unsigned char *pCube)
+void CubeClass::DemoALL_ON()
+// void CubeClass::DemoALL_ON(unsigned char *pCube)
 {
     unsigned char i, j;
     j = 10;
@@ -155,7 +147,8 @@ void CubeClass::DemoALL_ON(unsigned char *pCube)
 // -> pCube: cube to print
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoALL_OFF(unsigned char *pCube)
+void CubeClass::DemoALL_OFF()
+// void CubeClass::DemoALL_OFF(unsigned char *pCube)
 {
     unsigned char i, j;
     j = 10;
@@ -176,11 +169,12 @@ void CubeClass::DemoALL_OFF(unsigned char *pCube)
 // -> pCube: cube to print
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoRise(unsigned char *pCube)
+void CubeClass::DemoRise()
+// void CubeClass::DemoRise(unsigned char *pCube)
 {
     unsigned char i, x, y, j;
 
-    j = 20;
+    j = 100;
     while (j--)
     {
         for (i = 0; i < COLUMN_COUNT; i++)
@@ -206,7 +200,8 @@ void CubeClass::DemoRise(unsigned char *pCube)
 // -> pCube: cube to print
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoFall(unsigned char *pCube)
+void CubeClass::DemoFall()
+// void CubeClass::DemoFall(unsigned char *pCube)
 {
     unsigned char i, x, y, j;
 
@@ -250,7 +245,7 @@ void CubeClass::funPrintCube(unsigned char *p)
         Serial.write(p, COLUMN_COUNT);
     }
 
-    delay(40);
+    delay(Config.delay);
 }
 
 //---------------------------------------------------------------------------------------

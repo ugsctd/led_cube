@@ -22,13 +22,15 @@
 #include <FS.h>
 #include "webserver.h"
 #include "ntp.h"
+#include "cube.h"
 
 bool shouldReboot = false;
 // JsonObject &WebServerClass::buildConfigurationString(JsonBuffer &jsonBuffer)
- 
-JsonObject&  buildConfigurationString(JsonBuffer& jsonBuffer){
 
-  JsonObject& json = jsonBuffer.createObject();
+JsonObject &buildConfigurationString(JsonBuffer &jsonBuffer)
+{
+
+  JsonObject &json = jsonBuffer.createObject();
 
   json["ntp"] = Config.ntpserver.toString();
 
@@ -99,25 +101,6 @@ void handleConfigMessage(String msg)
 
   // if (key == "heartbeat" && value != ""){
   //   Config.heartbeat = (value == "1");
-  // }else if (key == "color" && value != ""){
-
-  // }else if (key == "color" && value != ""){
-
-  // }else if (key == "color" && value != ""){
-
-  // }else if (key == "color" && value != ""){
-
-  // }else if (key == "color" && value != ""){
-
-  // }else if (key == "color" && value != ""){
-
-  // }else if (key == "color" && value != ""){
-
-  // }else if (key == "color" && value != ""){
-
-  // }
-
-  // return;
 }
 
 void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
@@ -127,9 +110,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
     //client->printf("Configuration Broadcast for UID: %u", client->id());
     //client->ping();
-    
-  StaticJsonBuffer<512> jsonBuffer;
-    JsonObject& json = buildConfigurationString(jsonBuffer);
+
+    StaticJsonBuffer<512> jsonBuffer;
+    JsonObject &json = buildConfigurationString(jsonBuffer);
     size_t len = json.measureLength();
     AsyncWebSocketMessageBuffer *buffer = server->makeBuffer(len); //  creates a buffer (len + 1) for you.
     if (buffer)
@@ -291,7 +274,9 @@ void WebServerClass::begin()
   server.addHandler(&ws);
 
   server.on("/info", HTTP_ANY, std::bind(&WebServerClass::handleInfo, this, std::placeholders::_1));
-
+  server.on("/hello", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
+  });
   server.on("/h", HTTP_ANY, std::bind(&WebServerClass::handleH, this, std::placeholders::_1));
   server.on("/m", HTTP_ANY, std::bind(&WebServerClass::handleM, this, std::placeholders::_1));
   server.on("/r", HTTP_ANY, std::bind(&WebServerClass::handleR, this, std::placeholders::_1));
@@ -311,8 +296,9 @@ void WebServerClass::begin()
   server.on("/setcolor", HTTP_ANY, std::bind(&WebServerClass::handleSetColor, this, std::placeholders::_1));
   server.on("/setesist", HTTP_ANY, std::bind(&WebServerClass::handleSetEsIst, this, std::placeholders::_1));
   server.on("/setntpserver", HTTP_ANY, std::bind(&WebServerClass::handleSetNtpServer, this, std::placeholders::_1));
-  server.on("/setbrightness", HTTP_ANY, std::bind(&WebServerClass::handleSetBrightness, this, std::placeholders::_1));
-  server.on("/setbrightnesstable", HTTP_ANY, std::bind(&WebServerClass::handleSetBrightnessTable, this, std::placeholders::_1));
+  server.on("/letter/", HTTP_ANY, std::bind(&WebServerClass::handleLetter, this, std::placeholders::_1));
+  server.on("/off", HTTP_ANY, std::bind(&WebServerClass::handleOff, this, std::placeholders::_1));
+  server.on("/delay", HTTP_ANY, std::bind(&WebServerClass::handleSetDelay, this, std::placeholders::_1));
   server.on("/setmode", HTTP_ANY, std::bind(&WebServerClass::handleSetMode, this, std::placeholders::_1));
   server.on("/settimezone", HTTP_ANY, std::bind(&WebServerClass::handleSetTimeZone, this, std::placeholders::_1));
   server.on("/setdialect", HTTP_ANY, std::bind(&WebServerClass::handleSetDialect, this, std::placeholders::_1));
@@ -349,15 +335,6 @@ void WebServerClass::begin()
   server.onNotFound([](AsyncWebServerRequest *request) {
     request->send(404);
   });
-
-  //	this->server->on("/getheartbeat", std::bind(&WebServerClass::handleGetHeartbeat, this));
-  //  this->server->on("/getesist", std::bind(&WebServerClass::handleGetEsIst, this));
-  //	this->server->on("/getcolors", std::bind(&WebServerClass::handleGetColors, this));
-  //	this->server->on("/getntpserver", std::bind(&WebServerClass::handleGetNtpServer, this));
-  //  this->server->on("/getbrightness", std::bind(&WebServerClass::handleGetBrightness, this));
-  //	this->server->on("/getmode", std::bind(&WebServerClass::handleGetMode, this));
-  //  this->server->on("/gettimezone", std::bind(&WebServerClass::handleGetTimeZone, this));
-  //  this->server->on("/getdialect", std::bind(&WebServerClass::handleGetDialect, this));
 
   server.begin();
   Serial.println("Started Server");
@@ -441,39 +418,44 @@ void WebServerClass::handleB(AsyncWebServerRequest *request)
 //  request->send(200, "text/plain", String(Brightness.brightnessOverride));
 //}
 
-void WebServerClass::handleSetBrightness(AsyncWebServerRequest *request)
+void WebServerClass::handleLetter(AsyncWebServerRequest *request)
 {
-  if (request->hasArg("value"))
+  int headers = request->headers();
+  int i;
+  auto header = request->getHeader("value");
+  auto letter = header->value().c_str()[0];
+
+  Cube.printLetter(letter);
+
+  Serial.println(header->value().c_str());
+  for (i = 0; i < headers; i++)
   {
-    // Config.brightnessOverride = request->arg("value").toInt();
+    auto h = request->getHeader(i);
+    Serial.printf("HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+
     request->send(200, "text/plain", "OK");
-    this->ws.textAll("{\"brightness\":\"" + request->arg("value") + "\"}");
+    // this->ws.textAll("{\"letter\":\"" + letter + "\"}");
   }
 }
 
-void WebServerClass::handleSetBrightnessTable(AsyncWebServerRequest *request)
+void WebServerClass::handleOff(AsyncWebServerRequest *request)
 {
-  if (request->hasArg("value"))
-  {
-
-    for (int i = 0; i < 6; i++)
-    {
-      String value = getValue(request->arg("value"), ',', i);
-      if (value == "")
-      {
-        // Config.brightnessTable[i] = 255;
-      }
-      else
-      {
-        // Config.brightnessTable[i] = value.toInt();
-      }
-    }
-
-    request->send(200, "text/plain", "OK");
-    this->ws.textAll("{\"brightnessTable\":\"" + request->arg("value") + "\"}");
-  }
+  Cube.DemoALL_OFF();
+  request->send(200, "text/plain", "OK");
 }
 
+void WebServerClass::handleSetDelay(AsyncWebServerRequest *request)
+{
+  auto header = request->getHeader("value");
+
+  if (header)
+  {
+    auto delay = header->value().toInt();
+    Config.delay = delay;
+    request->send(200, "text/plain", "OK");
+    this->ws.textAll("{\"delay\":\"" + String(delay) + "\"}");
+  }
+}
 void WebServerClass::handleDebug(AsyncWebServerRequest *request)
 {
   // if(request->hasArg("led") &&
