@@ -21,6 +21,8 @@
 // #include <IPAddress.h>
 #include <stdint.h>
 
+#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
 
 #define LAYER_COUNT 8
 #define COLUMN_COUNT 64
@@ -33,19 +35,19 @@ class CubeClass
     CubeClass();
     virtual ~CubeClass();
     void setup(bool altSerial);
-    void say(String what);
+    void say(char *what);
     void printLetter(char letter);
     void loopcube();
-    void DemoALL_ON(byte *pCube);
-    void DemoALL_OFF(byte *pCube);
-    void DemoRise(byte *pCube);
-    void DemoFall(byte *pCube);
+    void DemoALL_ON(unsigned char *pCube);
+    void DemoALL_OFF(unsigned char *pCube);
+    void DemoRise(unsigned char *pCube);
+    void DemoFall(unsigned char *pCube);
 
   private:
-    void funPrintCube(byte *p);
-    void funGetColumn(byte x, byte y);
+    void funPrintCube(unsigned char *p);
+    unsigned char funGetColumn(unsigned char x, unsigned char y);
     unsigned char pCube[COLUMN_COUNT];
-    bool altTx = true;
+//    bool altTx = true;
     unsigned char letter_T[64]{0x00, 0x60, 0x60, 0x7E, 0x60, 0x60, 0x00}; //T
     unsigned char letter_B[64]{0x1E, 0x22, 0x22, 0x1E, 0x22, 0x22, 0x1E}; //B
 

@@ -18,18 +18,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Arduino.h>
-#include <FS.h>
 #include <ArduinoJson.h>
+#include <FS.h>
 #include "webserver.h"
 #include "ntp.h"
 
 bool shouldReboot = false;
+// JsonObject &WebServerClass::buildConfigurationString(JsonBuffer &jsonBuffer)
+ 
+JsonObject&  buildConfigurationString(JsonBuffer& jsonBuffer){
 
-JsonObject &buildConfigurationString()
-{
-    StaticJsonBuffer<512> jsonBuffer;
+  JsonObject& json = jsonBuffer.createObject();
 
-  JsonObject &json = jsonBuffer.createObject();
   json["ntp"] = Config.ntpserver.toString();
 
   int mode = 0;
@@ -127,7 +127,9 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
     //client->printf("Configuration Broadcast for UID: %u", client->id());
     //client->ping();
-    JsonObject &json = buildConfigurationString();
+    
+  StaticJsonBuffer<512> jsonBuffer;
+    JsonObject& json = buildConfigurationString(jsonBuffer);
     size_t len = json.measureLength();
     AsyncWebSocketMessageBuffer *buffer = server->makeBuffer(len); //  creates a buffer (len + 1) for you.
     if (buffer)

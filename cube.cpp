@@ -1,7 +1,9 @@
+#include <Arduino.h>
 #include <stdint.h>
+#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
 // #include <cube.h>
 #include "cube.h"
-
 // #define LAYER_COUNT 8
 // #define COLUMN_COUNT 64
 // byte pCube[COLUMN_COUNT];
@@ -39,7 +41,7 @@ CubeClass::CubeClass()
 CubeClass::~CubeClass()
 {
 }
-
+bool altTx = true;
 //---------------------------------------------------------------------------------------
 // setup
 //
@@ -51,7 +53,7 @@ CubeClass::~CubeClass()
 //---------------------------------------------------------------------------------------
 void CubeClass::setup(bool altSerial)
 {
-    byte i;
+    unsigned char i;
     delay(1000);
     altTx = altSerial;
     if (altTx) //??
@@ -77,7 +79,7 @@ void CubeClass::setup(bool altSerial)
 // -> what: what to say
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::say(String what)
+void CubeClass::say(char * what)
 {
     // printLetter(what);
 }
@@ -92,17 +94,17 @@ void CubeClass::say(String what)
 //---------------------------------------------------------------------------------------
 void CubeClass::printLetter(char letter)
 {
-    byte j;
+    unsigned char j;
     j = 10;
     while (j--)
     {
         switch (letter)
         {
         case 't':
-            this->funPrintCube(letter_T);
+            funPrintCube(letter_T);
             break;
         case 'b':
-            this->funPrintCube(letter_B);
+            funPrintCube(letter_B);
             break;
         default:
             break;
@@ -118,9 +120,9 @@ void CubeClass::printLetter(char letter)
 //---------------------------------------------------------------------------------------
 void CubeClass::loopcube()
 {
-    this->DemoALL_OFF(pCube);
-    this->DemoRise(pCube);
-    this->DemoALL_ON(pCube);
+    DemoALL_OFF(pCube);
+    DemoRise(pCube);
+    DemoALL_ON(pCube);
 }
 
 //---------------------------------------------------------------------------------------
@@ -131,9 +133,9 @@ void CubeClass::loopcube()
 // -> altSerial: true means using Serial1 on D4 (GPIO2)
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoALL_ON(byte *pCube)
+void CubeClass::DemoALL_ON(unsigned char *pCube)
 {
-    byte i, j;
+    unsigned char i, j;
     j = 10;
     while (j--)
     {
@@ -141,7 +143,7 @@ void CubeClass::DemoALL_ON(byte *pCube)
         {
             pCube[i] = 0xff;
         }
-        this->funPrintCube(pCube);
+        funPrintCube(pCube);
     }
 }
 
@@ -153,9 +155,9 @@ void CubeClass::DemoALL_ON(byte *pCube)
 // -> pCube: cube to print
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoALL_OFF(byte *pCube)
+void CubeClass::DemoALL_OFF(unsigned char *pCube)
 {
-    byte i, j;
+    unsigned char i, j;
     j = 10;
     while (j--)
     {
@@ -163,7 +165,7 @@ void CubeClass::DemoALL_OFF(byte *pCube)
         {
             pCube[i] = 0x00;
         }
-        this->funPrintCube(pCube);
+        funPrintCube(pCube);
     }
 }
 
@@ -174,9 +176,9 @@ void CubeClass::DemoALL_OFF(byte *pCube)
 // -> pCube: cube to print
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoRise(byte *pCube)
+void CubeClass::DemoRise(unsigned char *pCube)
 {
-    byte i, x, y, j;
+    unsigned char i, x, y, j;
 
     j = 20;
     while (j--)
@@ -190,10 +192,10 @@ void CubeClass::DemoRise(byte *pCube)
         {
             x = random(8);
             y = random(8);
-            pCube[this->funGetColumn(x, y)] |= 0x01;
+            pCube[funGetColumn(x, y)] |= 0x01;
         }
 
-        this->funPrintCube(pCube);
+        funPrintCube(pCube);
     }
 }
 
@@ -204,9 +206,9 @@ void CubeClass::DemoRise(byte *pCube)
 // -> pCube: cube to print
 // <- --
 //---------------------------------------------------------------------------------------
-void CubeClass::DemoFall(byte *pCube)
+void CubeClass::DemoFall(unsigned char *pCube)
 {
-    byte i, x, y, j;
+    unsigned char i, x, y, j;
 
     j = 20;
     while (j--)
@@ -220,10 +222,10 @@ void CubeClass::DemoFall(byte *pCube)
         {
             x = random(8);
             y = random(8);
-            pCube[this->funGetColumn(x, y)] |= 0x01;
+            pCube[funGetColumn(x, y)] |= 0x01;
         }
 
-        this->funPrintCube(pCube);
+        funPrintCube(pCube);
     }
 }
 
@@ -235,7 +237,7 @@ void CubeClass::DemoFall(byte *pCube)
 // -> *p: byte array to print
 // <- --
 //---------------------------------------------------------------------------------------
-void funPrintCube(byte *p)
+void CubeClass::funPrintCube(unsigned char *p)
 {
     if (altTx)
     {
@@ -260,7 +262,7 @@ void funPrintCube(byte *p)
 // -> y:
 // <- --
 //---------------------------------------------------------------------------------------
-void funGetColumn(byte x, byte y)
+unsigned char CubeClass::funGetColumn(unsigned char x, unsigned char y)
 {
     return (8 * y + x);
 }
