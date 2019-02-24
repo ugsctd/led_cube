@@ -81,7 +81,7 @@ class ConfigClass
 	// public configuration variables
 	IPAddress ntpserver = IPAddress(0, 0, 0, 0);
 	bool heartbeat = false;
-	bool delay = 100;
+	int delay = 100;
 	// bool esIst = true;
 	bool debugMode = false;
 

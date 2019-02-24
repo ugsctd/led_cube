@@ -72,7 +72,8 @@ void CubeClass::setup(bool altSerial)
 //---------------------------------------------------------------------------------------
 void CubeClass::say(char *what)
 {
-    // printLetter(what);
+    // for (int i = 0; i < what.count(); i++)
+    // Cube.printLetter(what[i]);
 }
 
 //---------------------------------------------------------------------------------------
@@ -86,7 +87,7 @@ void CubeClass::say(char *what)
 void CubeClass::printLetter(char letter)
 {
     unsigned char j;
-    j = 20;
+    j = 10;
     while (j--)
     {
         switch (letter)
@@ -102,7 +103,6 @@ void CubeClass::printLetter(char letter)
         }
     }
 }
-
 //---------------------------------------------------------------------------------------
 // loopcube
 //
@@ -194,6 +194,149 @@ void CubeClass::DemoRise()
 }
 
 //---------------------------------------------------------------------------------------
+// C
+//  Renders Cyan wall
+//
+// -> pCube: cube to print
+// <- --
+//---------------------------------------------------------------------------------------
+void CubeClass::C()
+{
+    unsigned char i, j;
+    j = 20;
+    while (j--)
+    {
+        for (i = 0; i < 64; i++)
+        {
+            pCube[i] = 0x01;
+        }
+        funPrintCube(pCube);
+    }
+}
+
+//---------------------------------------------------------------------------------------
+// M
+//  Renders Magenta wall
+//
+// -> pCube: cube to print
+// <- --
+//---------------------------------------------------------------------------------------
+void CubeClass::M()
+{
+    unsigned char i, j;
+    j = 20;
+    while (j--)
+    {
+        for (i = 0; i < 8; i++)
+        {
+            pCube[i] = 0xFF;
+        }
+        funPrintCube(pCube);
+    }
+}
+
+//---------------------------------------------------------------------------------------
+// Y
+//  Renders Yellow wall
+//
+// -> pCube: cube to print
+// <- --
+//---------------------------------------------------------------------------------------
+void CubeClass::Y()
+{
+    unsigned char i, j;
+    j = 20;
+    while (j--)
+    {
+        for (i = 0; i < 64; i++)
+        {
+            pCube[i] = 0xFF;
+        }
+        funPrintCube(pCube);
+    }
+}
+
+//---------------------------------------------------------------------------------------
+// R
+//  Renders Red wall
+//
+// -> pCube: cube to print
+// <- --
+//---------------------------------------------------------------------------------------
+void CubeClass::R()
+{
+    unsigned char i, j;
+    j = 20;
+    while (j--)
+    {
+        for (i = 15; i < 64; i++)
+        {
+            pCube[i] = 0xFF;
+        }
+        funPrintCube(pCube);
+    }
+}
+
+//---------------------------------------------------------------------------------------
+// G
+//  Renders Green wall
+//
+// -> pCube: cube to print
+// <- --
+//---------------------------------------------------------------------------------------
+void CubeClass::G()
+{
+    unsigned char i, x, y, j;
+
+    j = 100;
+    while (j--)
+    {
+        for (i = 0; i < COLUMN_COUNT; i++)
+        {
+            pCube[i] <<= 1;
+        }
+
+        for (i = 0; i < random(4); i++)
+        {
+            x = random(8);
+            y = random(8);
+            pCube[funGetColumn(x, y)] |= 0x01;
+        }
+
+        funPrintCube(pCube);
+    }
+}
+
+//---------------------------------------------------------------------------------------
+// B
+//  Renders Blue wall
+//
+// -> pCube: cube to print
+// <- --
+//---------------------------------------------------------------------------------------
+void CubeClass::B()
+{
+    unsigned char i, x, y, j;
+
+    j = 100;
+    while (j--)
+    {
+        for (i = 0; i < COLUMN_COUNT; i++)
+        {
+            pCube[i] <<= 1;
+        }
+
+        for (i = 0; i < random(4); i++)
+        {
+            x = random(8);
+            y = random(8);
+            pCube[funGetColumn(x, y)] |= 0x01;
+        }
+
+        funPrintCube(pCube);
+    }
+}
+//---------------------------------------------------------------------------------------
 // DemoFall
 //
 //
@@ -244,7 +387,7 @@ void CubeClass::funPrintCube(unsigned char *p)
         Serial.write(0xf2);
         Serial.write(p, COLUMN_COUNT);
     }
-
+    // Serial.println(Config.delay);
     delay(Config.delay);
 }
 

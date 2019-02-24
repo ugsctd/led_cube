@@ -269,19 +269,20 @@ void WebServerClass::begin()
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age:600");
 
-  // attach AsyncWebSocket
+ // attach AsyncWebSocket
   ws.onEvent(onWsEvent);
   server.addHandler(&ws);
-
+  
   server.on("/info", HTTP_ANY, std::bind(&WebServerClass::handleInfo, this, std::placeholders::_1));
   server.on("/hello", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
   });
-  server.on("/h", HTTP_ANY, std::bind(&WebServerClass::handleH, this, std::placeholders::_1));
-  server.on("/m", HTTP_ANY, std::bind(&WebServerClass::handleM, this, std::placeholders::_1));
   server.on("/r", HTTP_ANY, std::bind(&WebServerClass::handleR, this, std::placeholders::_1));
   server.on("/g", HTTP_ANY, std::bind(&WebServerClass::handleG, this, std::placeholders::_1));
   server.on("/b", HTTP_ANY, std::bind(&WebServerClass::handleB, this, std::placeholders::_1));
+  server.on("/c", HTTP_ANY, std::bind(&WebServerClass::handleC, this, std::placeholders::_1));
+  server.on("/m", HTTP_ANY, std::bind(&WebServerClass::handleM, this, std::placeholders::_1));
+  server.on("/y", HTTP_ANY, std::bind(&WebServerClass::handleY, this, std::placeholders::_1));
 
   server.on("/getsettings", HTTP_ANY, std::bind(&WebServerClass::handleGetSettings, this, std::placeholders::_1));
   server.on("/getadc", HTTP_ANY, std::bind(&WebServerClass::handleGetADC, this, std::placeholders::_1));
@@ -298,6 +299,7 @@ void WebServerClass::begin()
   server.on("/setntpserver", HTTP_ANY, std::bind(&WebServerClass::handleSetNtpServer, this, std::placeholders::_1));
   server.on("/letter/", HTTP_ANY, std::bind(&WebServerClass::handleLetter, this, std::placeholders::_1));
   server.on("/off", HTTP_ANY, std::bind(&WebServerClass::handleOff, this, std::placeholders::_1));
+  server.on("/say", HTTP_ANY, std::bind(&WebServerClass::handleSay, this, std::placeholders::_1));
   server.on("/delay", HTTP_ANY, std::bind(&WebServerClass::handleSetDelay, this, std::placeholders::_1));
   server.on("/setmode", HTTP_ANY, std::bind(&WebServerClass::handleSetMode, this, std::placeholders::_1));
   server.on("/settimezone", HTTP_ANY, std::bind(&WebServerClass::handleSetTimeZone, this, std::placeholders::_1));
@@ -351,26 +353,38 @@ void WebServerClass::begin()
 extern int h, m;
 void WebServerClass::handleM(AsyncWebServerRequest *request)
 {
-  if (++m > 59)
-    m = 0;
+  
+
   request->send(200, "text/plain", "OK");
 }
 
 //---------------------------------------------------------------------------------------
-// handleH
+// handleC
 //
 // Handles the /h request, increments the hours counter (for testing purposes)
 //
 // -> --
 // <- --
 //---------------------------------------------------------------------------------------
-void WebServerClass::handleH(AsyncWebServerRequest *request)
+void WebServerClass::handleC(AsyncWebServerRequest *request)
 {
-  if (++h > 23)
-    h = 0;
+  
   request->send(200, "text/plain", "OK");
 }
 
+//---------------------------------------------------------------------------------------
+// handleY
+//
+// Handles the /h request, increments the hours counter (for testing purposes)
+//
+// -> --
+// <- --
+//---------------------------------------------------------------------------------------
+void WebServerClass::handleY(AsyncWebServerRequest *request)
+{
+  
+  request->send(200, "text/plain", "OK");
+}
 //---------------------------------------------------------------------------------------
 // handleR
 //
@@ -420,22 +434,39 @@ void WebServerClass::handleB(AsyncWebServerRequest *request)
 
 void WebServerClass::handleLetter(AsyncWebServerRequest *request)
 {
-  int headers = request->headers();
-  int i;
+  //RESTful
+  auto url = request->url();
+  Serial.println(url);
+  auto letter_pos = url.indexOf("letter/") + 7;
+  auto letter = url[letter_pos];
+
+  // int headers = request->headers();
+  // int i;
   auto header = request->getHeader("value");
-  auto letter = header->value().c_str()[0];
+  // auto letter = header->value().c_str()[0];
 
   Cube.printLetter(letter);
 
   Serial.println(header->value().c_str());
-  for (i = 0; i < headers; i++)
+  // for (i = 0; i < headers; i++)
+  // {
+  //   auto h = request->getHeader(i);
+  //   Serial.printf("HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+
+     request->send(200, "text/plain", "OK");
+  //   // this->ws.textAll("{\"letter\":\"" + letter + "\"}");
+  // }
+}
+void WebServerClass::handleSay(AsyncWebServerRequest *request)
   {
-    auto h = request->getHeader(i);
-    Serial.printf("HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+  auto header = request->getHeader("value");
+
+  auto what = header->value();
+  for (int i = 0; i < what.length(); i++)
+    Cube.printLetter(what[i]);
 
     request->send(200, "text/plain", "OK");
-    // this->ws.textAll("{\"letter\":\"" + letter + "\"}");
-  }
+  this->ws.textAll("{\"letter\":\"" + what + "\"}");
 }
 
 void WebServerClass::handleOff(AsyncWebServerRequest *request)
@@ -452,6 +483,9 @@ void WebServerClass::handleSetDelay(AsyncWebServerRequest *request)
   {
     auto delay = header->value().toInt();
     Config.delay = delay;
+    Serial.println(Config.delay);
+    Config.save();
+
     request->send(200, "text/plain", "OK");
     this->ws.textAll("{\"delay\":\"" + String(delay) + "\"}");
   }

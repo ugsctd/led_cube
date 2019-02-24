@@ -28,6 +28,31 @@
 #define COLUMN_COUNT 64
 // structure with configuration data to be stored in EEPROM
 
+enum class AnimationType
+{
+	Wall,
+	Rise,
+	Fall,
+	flyingLettersVerticalDown,
+	explode,
+	random,
+	matrix,
+	heart,
+	fire,
+	plasma,
+	stars,
+	red,
+	green,
+	blue,
+	yellowHourglass,
+	greenHourglass,
+	update,
+	updateComplete,
+	updateError,
+	wifiManager,
+	invalid
+};
+
 class CubeClass
 {
   public:
@@ -42,10 +67,12 @@ class CubeClass
     void DemoALL_OFF();
     void DemoRise();
     void DemoFall();
-    // void DemoALL_ON(unsigned char *pCube);
-    // void DemoALL_OFF(unsigned char *pCube);
-    // void DemoRise(unsigned char *pCube);
-    // void DemoFall(unsigned char *pCube);
+    void C();
+    void M();
+    void Y();
+    void R();
+    void G();
+    void B();
 
   private:
     void funPrintCube(unsigned char *p);

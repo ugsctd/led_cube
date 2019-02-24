@@ -58,8 +58,9 @@ private:
 	void handleSetEsIst(AsyncWebServerRequest *request);
 	void handleGetEsIst();
 	void handleInfo(AsyncWebServerRequest *request);
-	void handleH(AsyncWebServerRequest *request);
+	void handleC(AsyncWebServerRequest *request);
 	void handleM(AsyncWebServerRequest *request);
+	void handleY(AsyncWebServerRequest *request);
 	void handleR(AsyncWebServerRequest *request);
 	void handleG(AsyncWebServerRequest *request);
 	void handleB(AsyncWebServerRequest *request);
@@ -67,6 +68,7 @@ private:
 	void handleSetDelay(AsyncWebServerRequest *request);
 	void handleLetter(AsyncWebServerRequest *request);
 	void handleOff(AsyncWebServerRequest *request);
+	void handleSay(AsyncWebServerRequest *request);
 	void handleGetADC(AsyncWebServerRequest *request);
 	void handleGetNtpServer();
 	void handleSetNtpServer(AsyncWebServerRequest *request);
