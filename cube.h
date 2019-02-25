@@ -46,7 +46,7 @@ enum class AnimationType
   Letter,
   Say,
   Random,
-  matrix,
+  Blink,
   heart,
   fire,
   plasma,
@@ -67,7 +67,7 @@ enum class AnimationType
 class AnimationClass
 {
 public:
-  virtual unsigned char *printNextFrame() = 0;  
+  virtual unsigned char *printNextFrame() = 0;
 
 protected:
   unsigned char funGetColumn(unsigned char x, unsigned char y);
@@ -90,12 +90,11 @@ private:
 class BlinkAnimationClass : public AnimationClass
 {
 public:
-  BlinkAnimationClass(char frequency);
+  BlinkAnimationClass();
   unsigned char *printNextFrame();
 
 private:
   char counter = 0;
-  char frequency = 0;
 };
 //Randomly generated particles start at the top to dissappear at the bottom
 class FallAnimationClass : public AnimationClass
@@ -118,25 +117,43 @@ public:
 private:
   ColumnColor color;
   char letter;
+  unsigned char letter_1[64]{0x10, 0x20, 0x40, 0x81, 0xff, 0x01, 0x01, 0x00};
+  unsigned char letter_2[64]{0x21, 0x43, 0x83, 0x85, 0x89, 0x49, 0x31, 0x01};
+  unsigned char letter_3[64]{0x00, 0x00, 0x00, 0x42, 0x81, 0x99, 0x66, 0x00};
+  unsigned char letter_4[64]{0x00, 0x00, 0x18, 0x28, 0x48, 0xfe, 0x08, 0x00};
+  unsigned char letter_5[64]{0x00, 0x00, 0xf4, 0x92, 0x92, 0x8c, 0x00, 0x00};
+  unsigned char letter_6[64]{0x00, 0x00, 0x7c, 0x92, 0x92, 0x4c, 0x00, 0x00};
+
+  unsigned char letter_T[64]{0xc0, 0xc0, 0xc0, 0xff, 0xff, 0xc0, 0xc0, 0xc0};
+  unsigned char letter_B[64]{0x1E, 0x22, 0x22, 0x1E, 0x22, 0x22, 0x1E};
+  unsigned char letter_X[64]{0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81};
+};
+
+class RandomAnimationClass : public AnimationClass
+{
+public:
+  RandomAnimationClass();
+  unsigned char *printNextFrame();
+
+private:
+  ColumnColor color;
+  char letter;
 
   unsigned char letter_T[64]{0x00, 0x60, 0x60, 0x7E, 0x60, 0x60, 0x00}; //T
   unsigned char letter_B[64]{0x1E, 0x22, 0x22, 0x1E, 0x22, 0x22, 0x1E}; //B
 };
-
 //Entry class for all your LED cube needs
 class CubeClass
 {
 public:
   void setup(bool altSerial);
   void printFrame();
-  void ChangeAnimation(AnimationType t);
+  void ChangeAnimation(AnimationType t, int param1, String param2);
   AnimationType type = AnimationType::Rise;
 
 private:
   unsigned char pCube[COLUMN_COUNT];
-
-  // AnimationClass currentAnimation = *new RiseAnimationClass(3, 1);
-  AnimationClass *currentAnimation = new BlinkAnimationClass(20);
+  AnimationClass *currentAnimation;
 
   int cube = 1;
   bool go = true;

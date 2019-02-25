@@ -35,7 +35,7 @@ void CubeClass::setup(bool altSerial)
 // Prints the next frame and waits
 void CubeClass::printFrame()
 {
-    unsigned char* p = currentAnimation->printNextFrame();
+    unsigned char *p = currentAnimation->printNextFrame();
 
     if (altTx)
     {
@@ -50,21 +50,26 @@ void CubeClass::printFrame()
     delay(Config.delay);
 }
 
-
 //Changes the animation type
-void CubeClass::ChangeAnimation(AnimationType t)
+void CubeClass::ChangeAnimation(AnimationType t, int param1, String param2)
 {
     this->type = t;
     switch (t)
     {
     case AnimationType::Rise:
-        currentAnimation = new RiseAnimationClass(3, 1);
+        currentAnimation = new RiseAnimationClass(param1, param2.toInt());
         break;
     case AnimationType::Fall:
-        currentAnimation = new FallAnimationClass(3, 1);
+        currentAnimation = new FallAnimationClass(param1, param2.toInt());
         break;
     case AnimationType::Letter:
-        currentAnimation = new LetterAnimationClass('t', ColumnColor::Red);
+        currentAnimation = new LetterAnimationClass(param2[0], ColumnColor::Red);
+        break;
+    case AnimationType::Blink:
+        currentAnimation = new BlinkAnimationClass();
+        break;
+    case AnimationType::Random:
+        currentAnimation = new BlinkAnimationClass();
         break;
     default:
         break;
@@ -99,10 +104,8 @@ LetterAnimationClass::LetterAnimationClass(char letter, ColumnColor color)
     this->color = color;
 }
 
-unsigned char* RiseAnimationClass::printNextFrame()
+unsigned char *RiseAnimationClass::printNextFrame()
 {
-    // Serial.println("RiseAnimationClass next frame");
-
     unsigned char i, x, y;
 
     for (i = 0; i < COLUMN_COUNT; i++)
@@ -119,10 +122,8 @@ unsigned char* RiseAnimationClass::printNextFrame()
     return pCube;
 }
 
-unsigned char* FallAnimationClass::printNextFrame()
+unsigned char *FallAnimationClass::printNextFrame()
 {
-    // Serial.println("FallAnimationClass next frame");
-
     unsigned char i, x, y;
 
     for (i = 0; i < COLUMN_COUNT; i++)
@@ -139,17 +140,16 @@ unsigned char* FallAnimationClass::printNextFrame()
     return pCube;
 }
 // Constructor, loads default values
-BlinkAnimationClass::BlinkAnimationClass(char frequency)
+BlinkAnimationClass::BlinkAnimationClass()
 {
-    this->frequency = frequency;
     Serial.println("BlinkAnimationClass");
 }
 
-unsigned char* BlinkAnimationClass::printNextFrame()
+unsigned char *BlinkAnimationClass::printNextFrame()
 {
     // Serial.println("BlinkAnimationClass next frame");
     unsigned char i;
-    if (counter % frequency == 0)
+    if (counter % 20 == 0)
         for (i = 0; i < 64; i++)
             pCube[i] = 0xff;
     else
@@ -161,18 +161,42 @@ unsigned char* BlinkAnimationClass::printNextFrame()
         counter++;
     return pCube;
 }
-unsigned char* LetterAnimationClass::printNextFrame()
+unsigned char *LetterAnimationClass::printNextFrame()
 {
     switch (letter)
     {
+    case '1':
+        return letter_1;
+        break;
+    case '2':
+        return letter_2;
+        break;
+    case '3':
+        return letter_3;
+        break;
+    case '4':
+        return letter_4;
+        break;
+    case '5':
+        return letter_5;
+        break;
+    case '6':
+        return letter_6;
+        break;
     case 't':
-        //    funPrintCube(letter_T);
+    case 'T':
+        return letter_T;
         break;
     case 'b':
-        //     funPrintCube(letter_B);
+    case 'B':
+        return letter_B;
+        break;
+    case 'x':
+    case 'X':
+        return letter_X;
         break;
     default:
+        return letter_X;
         break;
     }
-    return pCube;
 }

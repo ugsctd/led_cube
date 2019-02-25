@@ -349,13 +349,13 @@ void WebServerClass::handleOff(AsyncWebServerRequest *request)
 
 void WebServerClass::handleSetDelay(AsyncWebServerRequest *request)
 {
-  auto header = request->getHeader("value");
-  // if (header)
+  if (request->hasArg("value"))
   {
-    auto delay = header->value().toInt();
+    int delay = request->arg("value").toInt();
     Config.delay = delay;
-    Serial.println(Config.delay);
     Config.save();
+    Serial.print("Set delay to:");
+    Serial.println(Config.delay);
 
     request->send(200, "text/plain", "OK");
     this->ws.textAll("{\"delay\":\"" + String(delay) + "\"}");
@@ -515,10 +515,7 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
   }
   else
   {
-    Cube.ChangeAnimation(mode);
-    // 	LED.setMode(mode);
-    // Config.defaultMode = mode;
-    // Config.save();
+    Cube.ChangeAnimation(mode, request->arg("param1").toInt(), request->arg("param2"));
     request->send(200, "text/plain", "OK");
   }
   this->ws.textAll("{\"mode\":\"" + request->arg("value") + "\"}");
