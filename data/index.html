@@ -82,6 +82,7 @@
 
 		<p>mode options</p>
 		<input type="range" min="0" max="15" value="0" name="param1" id="param1" />
+		<span id="param1">0</span>
 		<input type="text" name="param2" id="param2" />
 		<input type="submit" name="submit_display" id="submit_display" onclick="displayModeChanged()" />
 	</div>
@@ -193,8 +194,8 @@
 
 		function displayModeChanged() {
 			var newMode;
-			var param1 = document.getElementById("displaymode")
-			var param2;
+			var param1 = document.getElementById("param1").value;
+			var param2 = document.getElementById("param1").text;
 			var displayModeCombo = document.getElementById("displaymode");
 			switch (displayModeCombo.selectedIndex) {
 				case 0: // Rise

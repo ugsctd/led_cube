@@ -90,10 +90,11 @@ private:
 class BlinkAnimationClass : public AnimationClass
 {
 public:
-  BlinkAnimationClass();
+  BlinkAnimationClass(int skip);
   unsigned char *printNextFrame();
 
 private:
+  int skip;
   char counter = 0;
 };
 //Randomly generated particles start at the top to dissappear at the bottom

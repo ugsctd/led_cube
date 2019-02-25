@@ -54,6 +54,7 @@ void CubeClass::printFrame()
 void CubeClass::ChangeAnimation(AnimationType t, int param1, String param2)
 {
     this->type = t;
+    Serial.println(param2);
     switch (t)
     {
     case AnimationType::Rise:
@@ -66,10 +67,10 @@ void CubeClass::ChangeAnimation(AnimationType t, int param1, String param2)
         currentAnimation = new LetterAnimationClass(param2[0], ColumnColor::Red);
         break;
     case AnimationType::Blink:
-        currentAnimation = new BlinkAnimationClass();
+        currentAnimation = new BlinkAnimationClass(param1);
         break;
     case AnimationType::Random:
-        currentAnimation = new BlinkAnimationClass();
+        currentAnimation = new BlinkAnimationClass(10);
         break;
     default:
         break;
@@ -96,12 +97,6 @@ FallAnimationClass::FallAnimationClass(char density, char length)
     Serial.println("FallAnimationClass created");
     this->density = density;
     this->length = length;
-}
-// Constructor, loads default values
-LetterAnimationClass::LetterAnimationClass(char letter, ColumnColor color)
-{
-    this->letter = letter;
-    this->color = color;
 }
 
 unsigned char *RiseAnimationClass::printNextFrame()
@@ -140,8 +135,9 @@ unsigned char *FallAnimationClass::printNextFrame()
     return pCube;
 }
 // Constructor, loads default values
-BlinkAnimationClass::BlinkAnimationClass()
+BlinkAnimationClass::BlinkAnimationClass(int skip)
 {
+    this->skip = skip;
     Serial.println("BlinkAnimationClass");
 }
 
@@ -149,7 +145,7 @@ unsigned char *BlinkAnimationClass::printNextFrame()
 {
     // Serial.println("BlinkAnimationClass next frame");
     unsigned char i;
-    if (counter % 20 == 0)
+    if (counter % skip == 0)
         for (i = 0; i < 64; i++)
             pCube[i] = 0xff;
     else
@@ -161,8 +157,16 @@ unsigned char *BlinkAnimationClass::printNextFrame()
         counter++;
     return pCube;
 }
+// Constructor, loads default values
+LetterAnimationClass::LetterAnimationClass(char letter, ColumnColor color)
+{
+    Serial.println(letter);
+    this->letter = letter;
+    this->color = color;
+}
 unsigned char *LetterAnimationClass::printNextFrame()
 {
+
     switch (letter)
     {
     case '1':
