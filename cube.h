@@ -72,18 +72,29 @@ public:
 protected:
   unsigned char funGetColumn(unsigned char x, unsigned char y);
   unsigned char pCube[COLUMN_COUNT];
+  void clear();
+  void fill();
+  void xPlus();
+  void xMinus();
+  void yPlus();
+  void yMinus();
+  void zPlus();
+  void zMinus();
+  void moveAllRight();
+  void moveAllLeft();  
 };
 
 //Randomly generated particles start at the bottom to dissappear at the top
 class RiseAnimationClass : public AnimationClass
 {
 public:
-  RiseAnimationClass(char density, char length);
+  RiseAnimationClass(char density, char length, ColumnColor color);
   unsigned char *printNextFrame();
 
 private:
   char length;
   char density;
+  ColumnColor color;
 };
 
 //Flashes the whole cube
@@ -149,7 +160,7 @@ class CubeClass
 public:
   void setup(bool altSerial);
   void printFrame();
-  void ChangeAnimation(AnimationType t, int param1, String param2);
+  void ChangeAnimation(AnimationType t, char param1, String param2, ColumnColor param3);
   AnimationType type = AnimationType::Rise;
 
 private:

@@ -29,7 +29,7 @@ void CubeClass::setup(bool altSerial)
         else
             Serial.write(0xAD);
     }
-    currentAnimation = new RiseAnimationClass(3, 1);
+    currentAnimation = new RiseAnimationClass(3, 1, ColumnColor::Red);
 }
 
 // Prints the next frame and waits
@@ -49,22 +49,20 @@ void CubeClass::printFrame()
     }
     delay(Config.delay);
 }
-
 //Changes the animation type
-void CubeClass::ChangeAnimation(AnimationType t, int param1, String param2)
+void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, ColumnColor color)
 {
     this->type = t;
-    Serial.println(param2);
     switch (t)
     {
     case AnimationType::Rise:
-        currentAnimation = new RiseAnimationClass(param1, param2.toInt());
+        currentAnimation = new RiseAnimationClass(param1, param2.toInt(), color);
         break;
     case AnimationType::Fall:
         currentAnimation = new FallAnimationClass(param1, param2.toInt());
         break;
     case AnimationType::Letter:
-        currentAnimation = new LetterAnimationClass(param2[0], ColumnColor::Red);
+        currentAnimation = new LetterAnimationClass(param2[0], color);
         break;
     case AnimationType::Blink:
         currentAnimation = new BlinkAnimationClass(param1);
@@ -83,12 +81,63 @@ unsigned char AnimationClass::funGetColumn(unsigned char x, unsigned char y)
     return (8 * y + x);
 }
 
+void AnimationClass::clear()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] = 0x00;
+}
+
+void AnimationClass::fill()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] = 0xff;
+}
+
+void AnimationClass::zPlus()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] >>= 1;
+}
+void AnimationClass::zMinus()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] <<= 1;
+}
+void AnimationClass::yPlus()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] <<= 1;
+}
+void AnimationClass::yMinus()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] >>= 1;
+}
+void AnimationClass::xPlus()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] <<= 1;
+}
+void AnimationClass::xMinus()
+{
+    char i;
+    for (i = 0; i < COLUMN_COUNT; i++)
+        pCube[i] >>= 1;
+}
 // Constructor, loads default values
-RiseAnimationClass::RiseAnimationClass(char density, char length)
+RiseAnimationClass::RiseAnimationClass(char density, char length, ColumnColor color)
 {
     Serial.println("RiseAnimationClass created");
     this->density = density;
     this->length = length;
+    this->color = color;
 }
 
 // Constructor, loads default values
@@ -166,7 +215,6 @@ LetterAnimationClass::LetterAnimationClass(char letter, ColumnColor color)
 }
 unsigned char *LetterAnimationClass::printNextFrame()
 {
-
     switch (letter)
     {
     case '1':

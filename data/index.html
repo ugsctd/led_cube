@@ -81,8 +81,17 @@
 		</select>
 
 		<p>mode options</p>
-		<input type="range" min="0" max="15" value="0" name="param1" id="param1" />
-		<span id="param1">0</span>
+		<input type="range" min="0" max="30" value="0" name="param1" id="param1"
+			onchange="document.getElementById('param1').innerHTML = this.value" />
+		<span id="param2">0</span>
+		<select name="color" id="color">
+				<option>Red</option>
+				<option>Green</option>
+				<option>Blue</option>
+				<option>Yellow</option>
+				<option>Cyan</option>
+				<option>Magenta</option>
+			</select>
 		<input type="text" name="param2" id="param2" />
 		<input type="submit" name="submit_display" id="submit_display" onclick="displayModeChanged()" />
 	</div>
@@ -195,7 +204,10 @@
 		function displayModeChanged() {
 			var newMode;
 			var param1 = document.getElementById("param1").value;
-			var param2 = document.getElementById("param1").text;
+			var color = document.getElementById("color").value;
+			var color = document.getElementById("color").selectedIndex;
+
+			var param2 = document.getElementById("param2").value;
 			var displayModeCombo = document.getElementById("displaymode");
 			switch (displayModeCombo.selectedIndex) {
 				case 0: // Rise
@@ -227,6 +239,7 @@
 			xhttp.open("GET", "http://" + location.hostname
 				+ "/setmode?value=" + newMode
 				+ "&param1=" + param1
+				+ "&color=" + color
 				+ "&param2=" + param2, true);
 			xhttp.send();
 		}

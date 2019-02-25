@@ -509,13 +509,31 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
     if (request->arg("value") == "5")
       mode = AnimationType::Random;
   }
+  ColumnColor color = ColumnColor::Red;
+  
+  if (request->hasArg("color"))
+  {
+    // handle each allowed value for safety
+    if (request->arg("color") == "0")
+      color = ColumnColor::Red;
+    if (request->arg("color") == "1")
+      color = ColumnColor::Green;
+    if (request->arg("color") == "2")
+      color = ColumnColor::Blue;
+    if (request->arg("color") == "3")
+      color = ColumnColor::Cyan;
+    if (request->arg("color") == "4")
+      color = ColumnColor::Magenta;
+    if (request->arg("color") == "5")
+      color = ColumnColor::Yellow;
+  }
   if (mode == AnimationType::invalid)
   {
     request->send(400, "text/plain", "ERR");
   }
   else
   {
-    Cube.ChangeAnimation(mode, request->arg("param1").toInt(), request->arg("param2"));
+    Cube.ChangeAnimation(mode, request->arg("param1").toInt(), request->arg("param2"), color);
     request->send(200, "text/plain", "OK");
   }
   this->ws.textAll("{\"mode\":\"" + request->arg("value") + "\"}");
