@@ -30,8 +30,6 @@
 class WebServerClass
 {
 public:
-	WebServerClass();
-	virtual ~WebServerClass();
 	void begin();
 	void process();
 

@@ -273,7 +273,7 @@ void setup()
 //-----------------------------------------------------------------------------------
 void loop()
 {
-  delay(10);
+  // delay(10);
 
   if(shouldReboot){
     Serial.println(F("Rebooting..."));
@@ -285,7 +285,7 @@ void loop()
   ArduinoOTA.handle();
 
   // update LEDs
-  Cube.loopcube();
+  Cube.printFrame();
 
   // output current time if seconds value has changed
   if (s != lastSecond)
@@ -296,15 +296,8 @@ void loop()
       // DEBUG("%02i:%02i:%02i, ADC=%i, heap=%i, brightness=%i\r\n",
           // h, m, s, Brightness.avg, ESP.getFreeHeap(), Brightness.value());
     #endif
-    
-
-    // Adjust the brightness only once per second, everything else significantly boosts the crash risk
-    // LED.setBrightness(Brightness.value());
   }
 
-
-  // LED.setTime(h, m, s, ms);
-  // LED.process();
 
   // do not continue if OTA update is in progress
   // OTA callbacks drive the LED display mode and OTA progress
@@ -313,23 +306,6 @@ void loop()
   if (OTA_in_progress)
     return;
 
-  // show the hourglass animation with green corners for the first 2.5 seconds
-  // after boot to be able to reflash with OTA during that time window if
-  // the firmware hangs afterwards
-  // if (updateCountdown)
-  // {
-  //   //setLED(0, 1, 0);
-  //   // LED.setMode(DisplayMode::greenHourglass);
-  //   // Serial.print(".");
-  //   // delay(100);
-  //   // updateCountdown--;
-  //   // if (updateCountdown == 0)
-  //   {
-  //     // LED.setMode(Config.defaultMode);
-  //     //setLED(0, 0, 0);
-  //   }
-  //   return;
-  // }
 
   // set mode depending on current time
   // if(h == 22 && m == 00) LED.setMode(DisplayMode::heart);
@@ -338,11 +314,6 @@ void loop()
   // else if(h == 20 && m == 00) LED.setMode(DisplayMode::plasma);
   // else if(h == 21 && m == 00) LED.setMode(DisplayMode::fire);
   //else
-
-  // LED.setMode(Config.defaultMode);
-
-  // do web server stuff
-  //WebServer.process();
 
   // save configuration to EEPROM if necessary
   if(Config.delayedWriteFlag)

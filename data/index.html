@@ -99,20 +99,20 @@
 </div>
 
 <div class="outer_frame">
-<p>Helligkeit</p>
-<input type="range" id="brightnessSlide" min="0" max="256" value="0" onchange="showValue(this.value)" />
+<p>Delay</p>
+<input type="range" id="delaySlide" min="0" max="256" value="0" onchange="showValue(this.value)" />
 <span id="range">0</span>
 </div>
 
 <div class="outer_frame">
-    <p>Modus</p>
+    <p>Mode</p>
 	<select name="displaymode" id="displaymode" onchange="displayModeChanged()">
-		<option>Einfach</option>
-		<option>Weiche Übergänge</option>
-		<option>Fliegende Buchstaben aufwärts</option>
-		<option>Fliegende Buchstaben abwärts</option>
-		<option>Explodierende Buchstaben</option>
-		<option>Zufällig</option>
+		<option>Rise</option>
+		<option>Fall</option>
+		<option>Letter</option>
+		<option>Say</option>
+		<option>Wall</option>
+		<option>Random</option>
 	</select>
 </div>
 
@@ -211,7 +211,7 @@
 	function showValue(newValue)
 	{
 		var xhttp = new XMLHttpRequest();
-        xhttp.open("GET", "http://" + location.hostname + "/setbrightness?value=" + newValue, true);
+        xhttp.open("GET", "http://" + location.hostname + "/setDelay?value=" + newValue, true);
         xhttp.send();
 
 		if (newValue <256){

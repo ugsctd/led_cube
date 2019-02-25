@@ -24,16 +24,10 @@
 typedef struct _config_struct
 {
 	uint32_t magic;
-	// palette_entry bg;
-	// palette_entry fg;
-	// palette_entry s;
-	// uint32_t brightnessOverride;
-	// uint8_t brightnessTable[6];
 	uint8_t ntpserver[4];
 
 	bool heartbeat;
 	int delay;
-	// bool esIst;
 	uint32_t mode;
 	uint32_t timeZone;
 	uint32_t dialect;
@@ -82,10 +76,9 @@ class ConfigClass
 	IPAddress ntpserver = IPAddress(0, 0, 0, 0);
 	bool heartbeat = false;
 	int delay = 100;
-	// bool esIst = true;
 	bool debugMode = false;
 
-	DisplayMode defaultMode = DisplayMode::flyingLettersVerticalUp;
+	DisplayMode defaultMode = DisplayMode::explode;
 
 	int updateProgress = 0;
 	int timeZone = 0;

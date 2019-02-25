@@ -1,7 +1,7 @@
-// ESP8266 Wordclock
-// Copyright (C) 2016 Thoralt Franz, https://github.com/thoralt
+// 8x8x8 LED Cube
+// Copyright (C) 2019 Michał Korzunowicz, https://github.com/mkorzunowicz
 //
-//  See config.cpp for description.
+//  See cube.h for description.
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,64 +28,122 @@
 #define COLUMN_COUNT 64
 // structure with configuration data to be stored in EEPROM
 
-enum class AnimationType
+enum class ColumnColor
 {
-	Wall,
-	Rise,
-	Fall,
-	flyingLettersVerticalDown,
-	explode,
-	random,
-	matrix,
-	heart,
-	fire,
-	plasma,
-	stars,
-	red,
-	green,
-	blue,
-	yellowHourglass,
-	greenHourglass,
-	update,
-	updateComplete,
-	updateError,
-	wifiManager,
-	invalid
+  Red,
+  Green,
+  Blue,
+  Cyan,
+  Magenta,
+  Yellow
 };
 
+enum class AnimationType
+{
+  Wall,
+  Rise,
+  Fall,
+  Letter,
+  Say,
+  Random,
+  matrix,
+  heart,
+  fire,
+  plasma,
+  stars,
+  red,
+  green,
+  blue,
+  yellowHourglass,
+  greenHourglass,
+  update,
+  updateComplete,
+  updateError,
+  wifiManager,
+  invalid
+};
+
+//Abstract class for animations
+class AnimationClass
+{
+public:
+  virtual unsigned char *printNextFrame() = 0;  
+
+protected:
+  unsigned char funGetColumn(unsigned char x, unsigned char y);
+  unsigned char pCube[COLUMN_COUNT];
+};
+
+//Randomly generated particles start at the bottom to dissappear at the top
+class RiseAnimationClass : public AnimationClass
+{
+public:
+  RiseAnimationClass(char density, char length);
+  unsigned char *printNextFrame();
+
+private:
+  char length;
+  char density;
+};
+
+//Flashes the whole cube
+class BlinkAnimationClass : public AnimationClass
+{
+public:
+  BlinkAnimationClass(char frequency);
+  unsigned char *printNextFrame();
+
+private:
+  char counter = 0;
+  char frequency = 0;
+};
+//Randomly generated particles start at the top to dissappear at the bottom
+class FallAnimationClass : public AnimationClass
+{
+public:
+  FallAnimationClass(char density, char length);
+  unsigned char *printNextFrame();
+
+private:
+  char length;
+  char density;
+};
+
+class LetterAnimationClass : public AnimationClass
+{
+public:
+  LetterAnimationClass(char letter, ColumnColor color);
+  unsigned char *printNextFrame();
+
+private:
+  ColumnColor color;
+  char letter;
+
+  unsigned char letter_T[64]{0x00, 0x60, 0x60, 0x7E, 0x60, 0x60, 0x00}; //T
+  unsigned char letter_B[64]{0x1E, 0x22, 0x22, 0x1E, 0x22, 0x22, 0x1E}; //B
+};
+
+//Entry class for all your LED cube needs
 class CubeClass
 {
-  public:
-    // public methods
-    CubeClass();
-    virtual ~CubeClass();
-    void setup(bool altSerial);
-    void say(char *what);
-    void printLetter(char letter);
-    void loopcube();
-    void DemoALL_ON();
-    void DemoALL_OFF();
-    void DemoRise();
-    void DemoFall();
-    void C();
-    void M();
-    void Y();
-    void R();
-    void G();
-    void B();
+public:
+  void setup(bool altSerial);
+  void printFrame();
+  void ChangeAnimation(AnimationType t);
+  AnimationType type = AnimationType::Rise;
 
-  private:
-    void funPrintCube(unsigned char *p);
-    unsigned char funGetColumn(unsigned char x, unsigned char y);
-    unsigned char pCube[COLUMN_COUNT];
-//    bool altTx = true;
-    unsigned char letter_T[64]{0x00, 0x60, 0x60, 0x7E, 0x60, 0x60, 0x00}; //T
-    unsigned char letter_B[64]{0x1E, 0x22, 0x22, 0x1E, 0x22, 0x22, 0x1E}; //B
+private:
+  unsigned char pCube[COLUMN_COUNT];
 
-    int cube = 1;
-    bool go = true;
+  // AnimationClass currentAnimation = *new RiseAnimationClass(3, 1);
+  AnimationClass *currentAnimation = new BlinkAnimationClass(20);
+
+  int cube = 1;
+  bool go = true;
 };
 
 extern CubeClass Cube;
 
+extern RiseAnimationClass RiseAnimation;
+extern FallAnimationClass FallAnimation;
 #endif /* _CUBE_H_ */

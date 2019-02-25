@@ -25,8 +25,6 @@
 #include "cube.h"
 
 bool shouldReboot = false;
-// JsonObject &WebServerClass::buildConfigurationString(JsonBuffer &jsonBuffer)
-
 JsonObject &buildConfigurationString(JsonBuffer &jsonBuffer)
 {
 
@@ -61,16 +59,8 @@ JsonObject &buildConfigurationString(JsonBuffer &jsonBuffer)
   else
     json["heartbeat"] = "0";
 
-  // if(Config.esIst) json["esIst"] = "1";
-  // else json["esIst"] = "0";
-
   json["dialect"] = String(Config.dialect);
   json["timezone"] = String(Config.timeZone);
-
-  // json["brightness"] = String(Config.brightnessOverride);
-
-  // int __attribute__ ((unused)) temp = Brightness.value(); // to trigger A/D conversion
-  // json["adcValue"] = String(Brightness.avg);
 
   return json;
 }
@@ -211,45 +201,10 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
   }
 }
 
-//---------------------------------------------------------------------------------------
 // global instance
-//---------------------------------------------------------------------------------------
 WebServerClass WebServer = WebServerClass();
 
-//---------------------------------------------------------------------------------------
-// WebServerClass
-//
-// Constructor, currently empty
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-WebServerClass::WebServerClass()
-{
-}
-
-//---------------------------------------------------------------------------------------
-// ~WebServerClass
-//
-// Destructor, removes allocated web server object
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-WebServerClass::~WebServerClass()
-{
-  //	if (this->server)
-  //		delete this->server;
-}
-
-//---------------------------------------------------------------------------------------
-// begin
-//
 // Sets up internal handlers and starts the server at port 80
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::begin()
 {
   Serial.println("Starting webserver");
@@ -259,31 +214,24 @@ void WebServerClass::begin()
 
   AsyncEventSource events("/events"); // event source (Server-Sent events)
 
-  server.on("/index", HTTP_ANY, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/index.htm");
-  });
+  // server.on("/index", HTTP_ANY, [](AsyncWebServerRequest *request) {
+  //   request->send(SPIFFS, "/index.htm");
+  // });
 
-  server.on("/jscolor", HTTP_ANY, [](AsyncWebServerRequest *request) {
-    request->send(SPIFFS, "/jscolor.js");
-  });
+  // server.on("/jscolor", HTTP_ANY, [](AsyncWebServerRequest *request) {
+  //   request->send(SPIFFS, "/jscolor.js");
+  // });
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html").setCacheControl("max-age:600");
 
- // attach AsyncWebSocket
+  // attach AsyncWebSocket
   ws.onEvent(onWsEvent);
   server.addHandler(&ws);
-  
+
   server.on("/info", HTTP_ANY, std::bind(&WebServerClass::handleInfo, this, std::placeholders::_1));
   server.on("/hello", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html", "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>");
   });
-  server.on("/r", HTTP_ANY, std::bind(&WebServerClass::handleR, this, std::placeholders::_1));
-  server.on("/g", HTTP_ANY, std::bind(&WebServerClass::handleG, this, std::placeholders::_1));
-  server.on("/b", HTTP_ANY, std::bind(&WebServerClass::handleB, this, std::placeholders::_1));
-  server.on("/c", HTTP_ANY, std::bind(&WebServerClass::handleC, this, std::placeholders::_1));
-  server.on("/m", HTTP_ANY, std::bind(&WebServerClass::handleM, this, std::placeholders::_1));
-  server.on("/y", HTTP_ANY, std::bind(&WebServerClass::handleY, this, std::placeholders::_1));
-
   server.on("/getsettings", HTTP_ANY, std::bind(&WebServerClass::handleGetSettings, this, std::placeholders::_1));
   server.on("/getadc", HTTP_ANY, std::bind(&WebServerClass::handleGetADC, this, std::placeholders::_1));
 
@@ -295,12 +243,11 @@ void WebServerClass::begin()
 
   server.on("/setheartbeat", HTTP_ANY, std::bind(&WebServerClass::handleSetHeartbeat, this, std::placeholders::_1));
   server.on("/setcolor", HTTP_ANY, std::bind(&WebServerClass::handleSetColor, this, std::placeholders::_1));
-  server.on("/setesist", HTTP_ANY, std::bind(&WebServerClass::handleSetEsIst, this, std::placeholders::_1));
   server.on("/setntpserver", HTTP_ANY, std::bind(&WebServerClass::handleSetNtpServer, this, std::placeholders::_1));
   server.on("/letter/", HTTP_ANY, std::bind(&WebServerClass::handleLetter, this, std::placeholders::_1));
   server.on("/off", HTTP_ANY, std::bind(&WebServerClass::handleOff, this, std::placeholders::_1));
   server.on("/say", HTTP_ANY, std::bind(&WebServerClass::handleSay, this, std::placeholders::_1));
-  server.on("/delay", HTTP_ANY, std::bind(&WebServerClass::handleSetDelay, this, std::placeholders::_1));
+  server.on("/setDelay", HTTP_ANY, std::bind(&WebServerClass::handleSetDelay, this, std::placeholders::_1));
   server.on("/setmode", HTTP_ANY, std::bind(&WebServerClass::handleSetMode, this, std::placeholders::_1));
   server.on("/settimezone", HTTP_ANY, std::bind(&WebServerClass::handleSetTimeZone, this, std::placeholders::_1));
   server.on("/setdialect", HTTP_ANY, std::bind(&WebServerClass::handleSetDialect, this, std::placeholders::_1));
@@ -353,84 +300,9 @@ void WebServerClass::begin()
 extern int h, m;
 void WebServerClass::handleM(AsyncWebServerRequest *request)
 {
-  
 
   request->send(200, "text/plain", "OK");
 }
-
-//---------------------------------------------------------------------------------------
-// handleC
-//
-// Handles the /h request, increments the hours counter (for testing purposes)
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-void WebServerClass::handleC(AsyncWebServerRequest *request)
-{
-  
-  request->send(200, "text/plain", "OK");
-}
-
-//---------------------------------------------------------------------------------------
-// handleY
-//
-// Handles the /h request, increments the hours counter (for testing purposes)
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-void WebServerClass::handleY(AsyncWebServerRequest *request)
-{
-  
-  request->send(200, "text/plain", "OK");
-}
-//---------------------------------------------------------------------------------------
-// handleR
-//
-// Handles the /r request, sets LED matrix to all red (for testing purposes)
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-void WebServerClass::handleR(AsyncWebServerRequest *request)
-{
-  // LED.setMode(DisplayMode::red);
-  request->send(200, "text/plain", "OK");
-}
-
-//---------------------------------------------------------------------------------------
-// handleG
-//
-// Handles the /g request, sets LED matrix to all green (for testing purposes)
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-void WebServerClass::handleG(AsyncWebServerRequest *request)
-{
-  // LED.setMode(DisplayMode::green);
-  request->send(200, "text/plain", "OK");
-}
-
-//---------------------------------------------------------------------------------------
-// handleB
-//
-// Handles the /b request, sets LED matrix to all blue (for testing purposes)
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-void WebServerClass::handleB(AsyncWebServerRequest *request)
-{
-  // LED.setMode(DisplayMode::blue);
-  request->send(200, "text/plain", "OK");
-}
-
-//void WebServerClass::handleGetBrightness()
-//{
-//  request->send(200, "text/plain", String(Brightness.brightnessOverride));
-//}
 
 void WebServerClass::handleLetter(AsyncWebServerRequest *request)
 {
@@ -445,7 +317,7 @@ void WebServerClass::handleLetter(AsyncWebServerRequest *request)
   auto header = request->getHeader("value");
   // auto letter = header->value().c_str()[0];
 
-  Cube.printLetter(letter);
+  // Cube.printLetter(letter);
 
   Serial.println(header->value().c_str());
   // for (i = 0; i < headers; i++)
@@ -453,33 +325,32 @@ void WebServerClass::handleLetter(AsyncWebServerRequest *request)
   //   auto h = request->getHeader(i);
   //   Serial.printf("HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
 
-     request->send(200, "text/plain", "OK");
+  request->send(200, "text/plain", "OK");
   //   // this->ws.textAll("{\"letter\":\"" + letter + "\"}");
   // }
 }
 void WebServerClass::handleSay(AsyncWebServerRequest *request)
-  {
+{
   auto header = request->getHeader("value");
 
   auto what = header->value();
-  for (int i = 0; i < what.length(); i++)
-    Cube.printLetter(what[i]);
+  // for (int i = 0; i < what.length(); i++)
+  // Cube.printLetter(what[i]);
 
-    request->send(200, "text/plain", "OK");
+  request->send(200, "text/plain", "OK");
   this->ws.textAll("{\"letter\":\"" + what + "\"}");
 }
 
 void WebServerClass::handleOff(AsyncWebServerRequest *request)
 {
-  Cube.DemoALL_OFF();
+  // Cube.DemoALL_OFF();
   request->send(200, "text/plain", "OK");
 }
 
 void WebServerClass::handleSetDelay(AsyncWebServerRequest *request)
 {
   auto header = request->getHeader("value");
-
-  if (header)
+  // if (header)
   {
     auto delay = header->value().toInt();
     Config.delay = delay;
@@ -620,32 +491,34 @@ void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
 //---------------------------------------------------------------------------------------
 void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
 {
-  DisplayMode mode = DisplayMode::invalid;
+  AnimationType mode = AnimationType::invalid;
 
   if (request->hasArg("value"))
   {
     // handle each allowed value for safety
     if (request->arg("value") == "0")
-      mode = DisplayMode::plain;
+      mode = AnimationType::Rise;
     if (request->arg("value") == "1")
-      mode = DisplayMode::fade;
+      mode = AnimationType::Fall;
     if (request->arg("value") == "2")
-      mode = DisplayMode::flyingLettersVerticalUp;
+      mode = AnimationType::Letter;
     if (request->arg("value") == "3")
-      mode = DisplayMode::flyingLettersVerticalDown;
+      mode = AnimationType::Say;
     if (request->arg("value") == "4")
-      mode = DisplayMode::explode;
+      mode = AnimationType::Wall;
+    if (request->arg("value") == "5")
+      mode = AnimationType::Random;
   }
-
-  if (mode == DisplayMode::invalid)
+  if (mode == AnimationType::invalid)
   {
     request->send(400, "text/plain", "ERR");
   }
   else
   {
+    Cube.ChangeAnimation(mode);
     // 	LED.setMode(mode);
-    Config.defaultMode = mode;
-    Config.save();
+    // Config.defaultMode = mode;
+    // Config.save();
     request->send(200, "text/plain", "OK");
   }
   this->ws.textAll("{\"mode\":\"" + request->arg("value") + "\"}");
@@ -709,27 +582,15 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
 //	}
 //}
 //
-////---------------------------------------------------------------------------------------
-//// handleGetNtpServer
-////
+
 //// Delivers the currently configured NTP server IP address
-////
-//// -> --
-//// <- --
-////---------------------------------------------------------------------------------------
 //void WebServerClass::handleGetNtpServer()
 //{
 //	request->send(200, "application/json", Config.ntpserver.toString());
 //}
 //
-//---------------------------------------------------------------------------------------
-// handleSetNtpServer
-//
+
 // Sets a new IP address for the NTP client
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleSetNtpServer(AsyncWebServerRequest *request)
 {
   if (request->hasArg("ip"))
@@ -749,14 +610,7 @@ void WebServerClass::handleSetNtpServer(AsyncWebServerRequest *request)
   this->ws.textAll("{\"ntp\":\"" + request->arg("ip") + "\"}");
 }
 
-//---------------------------------------------------------------------------------------
-// handleInfo
-//
 // Handles requests to "/info", replies with JSON structure containing system status
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleInfo(AsyncWebServerRequest *request)
 {
   Serial.println("Info timer");
@@ -823,40 +677,9 @@ void WebServerClass::handleInfo(AsyncWebServerRequest *request)
   request->send(200, "application/json", buf);
 }
 
-//---------------------------------------------------------------------------------------
-// extractColor
-//
-// Converts the given web server argument to a color struct
-// -> argName: Name of the web server argument
-//	result: Pointer to palette_entry struct to receive result
-// <- --
-//---------------------------------------------------------------------------------------
-// void WebServerClass::extractColor(AsyncWebServerRequest *request, String argName, palette_entry &result)
-// {
-// char c[3];
-
-// if (request->hasArg(argName.c_str()) && request->arg(argName).length() == 6)
-// {
-// String color = request->arg(argName);
-// color.substring(0, 2).toCharArray(c, sizeof(c));
-// result.r = strtol(c, NULL, 16);
-// color.substring(2, 4).toCharArray(c, sizeof(c));
-// result.g = strtol(c, NULL, 16);
-// color.substring(4, 6).toCharArray(c, sizeof(c));
-// result.b = strtol(c, NULL, 16);
-// }
-// }
-
-//---------------------------------------------------------------------------------------
-// handleSetColor
-//
 // Handles the "/setcolor" request, expects arguments:
 //	/setcolor?fg=xxxxxx&bg=yyyyyy&s=zzzzzz
 //	with xxxxxx, yyyyyy and zzzzzz being hexadecimal HTML colors (without leading '#')
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleSetColor(AsyncWebServerRequest *request)
 {
   // this->extractColor(request, "fg", Config.fg);
@@ -864,21 +687,14 @@ void WebServerClass::handleSetColor(AsyncWebServerRequest *request)
   // this->extractColor(request, "s", Config.s);
   request->send(200, "text/plain", "OK");
 
-  Config.saveDelayed();
+  // Config.saveDelayed();
 
   // String message = String("{\"colors\":\"") + String(Config.bg.r) + "," + String(Config.bg.g) + "," + String(Config.bg.b) + "," + String(Config.fg.r) + "," + String(Config.fg.g) + "," + String(Config.fg.b) + "," + String(Config.s.r) + "," + String(Config.s.g) + "," + String(Config.s.b) + String("\"}");
 
   // this->ws.textAll(message);
 }
 
-//---------------------------------------------------------------------------------------
-// handleGetSettings
-//
 // Dumps all Config settings as a JSON object
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 {
   StaticJsonBuffer<512> jsonBuffer;
@@ -886,20 +702,7 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 
   JsonObject &json = jsonBuffer.createObject();
 
-  // String color = String(Config.bg.r) + "," + String(Config.bg.g) + "," + String(Config.bg.b) + "," + String(Config.fg.r) + "," + String(Config.fg.g) + "," + String(Config.fg.b) + "," + String(Config.s.r) + "," + String(Config.s.g) + "," + String(Config.s.b);
-
-  // json["colors"] = color;
-
   json["ntp"] = Config.ntpserver.toString();
-
-  // String bT = String(Config.brightnessTable[0]) + "," +
-  //             String(Config.brightnessTable[1]) + "," +
-  //             String(Config.brightnessTable[2]) + "," +
-  //             String(Config.brightnessTable[3]) + "," +
-  //             String(Config.brightnessTable[4]) + "," +
-  //             String(Config.brightnessTable[5]);
-
-  // json["brightnessTable"] = bT;
 
   int mode = 0;
   switch (Config.defaultMode)
@@ -931,18 +734,8 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
   else
     json["heartbeat"] = "0";
 
-  // if (Config.esIst)
-  //   json["esIst"] = "1";
-  // else
-  //   json["esIst"] = "0";
-
   json["dialect"] = String(Config.dialect);
   json["timezone"] = String(Config.timeZone);
-  // json["brightness"] = String(Config.brightnessOverride);
-
-  // int __attribute__ ((unused)) temp = Brightness.value(); // to trigger A/D conversion
-  // json["adcValue"] = String(Brightness.avg);
-
   json["test"] = "pass";
 
   if (request->hasArg("pretty"))
@@ -957,56 +750,28 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
   request->send(200, "application/json", buf);
 }
 
-//---------------------------------------------------------------------------------------
-// handleSaveConfig
-//
 // Saves the current configuration to EEPROM
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleSaveConfig(AsyncWebServerRequest *request)
 {
   Config.save();
   request->send(200, "text/plain", "OK");
 }
 
-//---------------------------------------------------------------------------------------
-// handleLoadConfig
-//
 // Loads the current configuration from EEPROM
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleLoadConfig(AsyncWebServerRequest *request)
 {
   Config.load();
   request->send(200, "text/plain", "OK");
 }
 
-//---------------------------------------------------------------------------------------
-// handleLoadConfig
-//
 // Resets the current configuration to default
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleResetConfig(AsyncWebServerRequest *request)
 {
   Config.reset();
   request->send(200, "text/plain", "OK");
 }
 
-//---------------------------------------------------------------------------------------
-// handleSetHeartbeat
-//
 // Sets or resets the heartbeat flag in the configuration based on argument "state"
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleSetHeartbeat(AsyncWebServerRequest *request)
 {
   Config.heartbeat = (request->hasArg("value") && request->arg("value") == "1");
@@ -1015,61 +780,16 @@ void WebServerClass::handleSetHeartbeat(AsyncWebServerRequest *request)
   this->ws.textAll("{\"heartbeat\":\"" + request->arg("value") + "\"}");
 }
 
-////---------------------------------------------------------------------------------------
-//// handleGetHeartbeat
-////
 //// Returns the state of the heartbeat flag.
-////
-//// -> --
-//// <- --
-////---------------------------------------------------------------------------------------
 //void WebServerClass::handleGetHeartbeat()
 //{
 //	if(Config.heartbeat) request->send(200, "text/plain", "1");
 //	else request->send(200, "text/plain", "0");
 //}
 //
-//---------------------------------------------------------------------------------------
-// handleSetEsIst
-//
-// Sets or resets the heartbeat flag in the configuration based on argument "state"
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
-void WebServerClass::handleSetEsIst(AsyncWebServerRequest *request)
-{
-  // Config.esIst = (request->hasArg("value") && request->arg("value") == "1");
-  Config.save();
-  request->send(200, "text/plain", "OK");
 
-  this->ws.textAll("{\"esIst\":\"" + request->arg("value") + "\"}");
-}
-
-////---------------------------------------------------------------------------------------
-//// handleGetHeartbeat
-////
-//// Returns the state of the heartbeat flag.
-////
-//// -> --
-//// <- --
-////---------------------------------------------------------------------------------------
-//void WebServerClass::handleGetEsIst()
-//{
-//  if(Config.esIst) request->send(200, "text/plain", "1");
-//  else request->send(200, "text/plain", "0");
-//}
-//
-//
-////---------------------------------------------------------------------------------------
-//// handleGetColors
-////
 //// Outputs the currently active colors as comma separated list for background, foreground
 //// and seconds color with 3 values each (red, green, blue)
-////
-//// -> --
-//// <- --
-////---------------------------------------------------------------------------------------
 //void WebServerClass::handleGetColors()
 //{
 //	String message = String(Config.bg.r) + "," + String(Config.bg.g) + ","
