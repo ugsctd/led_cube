@@ -67,6 +67,9 @@ void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, Col
     case AnimationType::Blink:
         currentAnimation = new BlinkAnimationClass(param1);
         break;
+    case AnimationType::Wall:
+        currentAnimation = new WallAnimationClass(color);
+        break;
     case AnimationType::Random:
         currentAnimation = new BlinkAnimationClass(10);
         break;
@@ -148,6 +151,57 @@ FallAnimationClass::FallAnimationClass(char density, char length)
     this->length = length;
 }
 
+// Constructor, loads default values
+WallAnimationClass::WallAnimationClass(ColumnColor color)
+{
+    Serial.println("WallAnimationClass created");
+    this->color = color;
+}
+
+unsigned char *WallAnimationClass::printNextFrame()
+{
+    unsigned char i;
+     clear();
+    switch (color)
+    {
+    case ColumnColor::Red:       
+        for (i = 0; i < 16; i++)
+            pCube[i] = 0xFF;
+        for (i = 48; i < 64; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::Green:
+        for (i = 16; i < 32; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::Blue:
+        for (i = 32; i < 48; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::Cyan:
+         for (i = 24; i < 40; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::Magenta:
+        for (i = 40; i < 56; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::Yellow:
+         for (i = 8; i < 24; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::All:
+         for (i = 0; i < 64; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::None:         
+        break;
+    default:
+        break;
+    }
+
+    return pCube;
+}
 unsigned char *RiseAnimationClass::printNextFrame()
 {
     unsigned char i, x, y;
@@ -234,6 +288,18 @@ unsigned char *LetterAnimationClass::printNextFrame()
         break;
     case '6':
         return letter_6;
+        break;
+    case '7':
+        return letter_7;
+        break;
+    case '8':
+        return letter_8;
+        break;
+    case '9':
+        return letter_9;
+        break;
+    case '0':
+        return letter_0;
         break;
     case 't':
     case 'T':

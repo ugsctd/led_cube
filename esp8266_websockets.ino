@@ -34,16 +34,12 @@ bool debug = false;
 #define LED_BUILTIN	2
 
 extern bool shouldReboot;
-//---------------------------------------------------------------------------------------
+
 // Network related variables
-//---------------------------------------------------------------------------------------
 int OTA_in_progress = 0;
 
-//---------------------------------------------------------------------------------------
 // Timer related variables
-//---------------------------------------------------------------------------------------
 #define TIMER_RESOLUTION 10
-// #define HOURGLASS_ANIMATION_PERIOD 100
 Ticker timer;
 int h = 0;
 int m = 0;
@@ -55,14 +51,7 @@ bool startup = true;
 
 int updateCountdown = 25;
 
-//---------------------------------------------------------------------------------------
-// timerCallback
-//
 // Increments time, decrements timeout and NTP timer
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void timerCallback()
 {
   // update time variables
@@ -96,27 +85,9 @@ void timerCallback()
   // blink onboard LED if heartbeat is enabled
   if (ms == 0 && Config.heartbeat) digitalWrite(LED_BUILTIN, LOW);
   else digitalWrite(LED_BUILTIN, HIGH);
-
-  // hourglassPrescaler += TIMER_RESOLUTION;
-  // if (hourglassPrescaler >= HOURGLASS_ANIMATION_PERIOD)
-  {
-    // hourglassPrescaler -= HOURGLASS_ANIMATION_PERIOD;
-    // if (++Config.hourglassState >= HOURGLASS_ANIMATION_FRAMES)
-      // Config.hourglassState = 0;
-
-    // trigger LED processing for hourglass during startup
-  //  if (startup) LED.process();
-  }
 }
 
-//---------------------------------------------------------------------------------------
-// configModeCallback
-//
 // ...
-//
-// ->
-// <- --
-//---------------------------------------------------------------------------------------
 void configModeCallback(AsyncWiFiManager *myWiFiManager)
 {
   // LED.setMode(DisplayMode::wifiManager);
@@ -125,15 +96,8 @@ void configModeCallback(AsyncWiFiManager *myWiFiManager)
   Serial.println(myWiFiManager->getConfigPortalSSID());
 }
 
-//---------------------------------------------------------------------------------------
-// NtpCallback
-//
 // Is called by the NTP class upon successful reception of an NTP data packet. Updates
 // the global hour, minute, second and millisecond values.
-//
-// ->
-// <- --
-//---------------------------------------------------------------------------------------
 void NtpCallback(uint8_t _h, uint8_t _m, uint8_t _s, uint8_t _ms)
 {
   Serial.println(F("NtpCallback()"));
@@ -157,14 +121,7 @@ void NtpCallback(uint8_t _h, uint8_t _m, uint8_t _s, uint8_t _ms)
 //	digitalWrite(LED_BLUE, b);
 //}
 
-//---------------------------------------------------------------------------------------
-// setup
-//
 // Initializes everything
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void setup()
 {
   // ESP8266 LED
@@ -219,8 +176,6 @@ void setup()
     Debug.setSerialEnabled(true); // if you wants serial echo - only recommended if ESP8266 is plugged in USB
   #endif 
 
-  //setLED(0, 0, 1);
-
   // OTA update
   Serial.println(F("Initializing OTA"));
   ArduinoOTA.setPort(8266);
@@ -268,13 +223,8 @@ void setup()
   Serial.println(F("Startup complete."));
 }
 
-//-----------------------------------------------------------------------------------
-// loop
-//-----------------------------------------------------------------------------------
 void loop()
 {
-  // delay(10);
-
   if(shouldReboot){
     Serial.println(F("Rebooting..."));
     delay(100);
@@ -287,33 +237,12 @@ void loop()
   // update LEDs
   Cube.printFrame();
 
-  // output current time if seconds value has changed
-  if (s != lastSecond)
-  {
-    lastSecond = s;
-    
-    #ifndef PRODUCTION
-      // DEBUG("%02i:%02i:%02i, ADC=%i, heap=%i, brightness=%i\r\n",
-          // h, m, s, Brightness.avg, ESP.getFreeHeap(), Brightness.value());
-    #endif
-  }
-
-
   // do not continue if OTA update is in progress
   // OTA callbacks drive the LED display mode and OTA progress
   // in the background, the above call to LED.process() ensures
   // the OTA status is output to the LEDs
   if (OTA_in_progress)
     return;
-
-
-  // set mode depending on current time
-  // if(h == 22 && m == 00) LED.setMode(DisplayMode::heart);
-  //else if(h == 13 && m == 37) LED.setMode(DisplayMode::matrix);
-  //else if(h == 23 && m == 00) LED.setMode(DisplayMode::stars);
-  // else if(h == 20 && m == 00) LED.setMode(DisplayMode::plasma);
-  // else if(h == 21 && m == 00) LED.setMode(DisplayMode::fire);
-  //else
 
   // save configuration to EEPROM if necessary
   if(Config.delayedWriteFlag)

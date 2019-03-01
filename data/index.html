@@ -63,9 +63,8 @@
 	<div class="header">LED Cube settings</div>
 
 	<div class="outer_frame">
-		<p>Delay</p>
+		<p>Delay: <span id="range">0</span></p>
 		<input type="range" id="delaySlide" min="0" max="256" value="0" onchange="setDelay(this.value)" />
-		<span id="range">0</span>
 	</div>
 
 	<div class="outer_frame">
@@ -79,23 +78,33 @@
 			<option>Blink</option>
 			<option>Random</option>
 		</select>
-
-		<p>mode options</p>
-		<input type="range" min="0" max="30" value="0" name="param1" id="param1"
-			onchange="document.getElementById('param1').innerHTML = this.value" />
-		<span id="param2">0</span>
-		<select name="color" id="color">
+		<div>
+			<span>Color</span>
+			<br>
+			<select name="color" id="color">
 				<option>Red</option>
 				<option>Green</option>
 				<option>Blue</option>
-				<option>Yellow</option>
 				<option>Cyan</option>
 				<option>Magenta</option>
+				<option>Yellow</option>
+				<option>All</option>
+				<option>None</option>
 			</select>
+		</div>
+		<div>
+			<span>Int param: <span id="param1val">0</span></span>
+			<br>
+			<input type="range" min="0" max="30" value="0" name="param1" id="param1"
+				onchange="document.getElementById('param1val').innerHTML = this.value;" />
+		</div>
+		<span>String param</span>
+		<br>
 		<input type="text" name="param2" id="param2" />
+		<br>
 		<input type="submit" name="submit_display" id="submit_display" onclick="displayModeChanged()" />
 	</div>
-	<div class="outer_frame">
+	<!-- <div class="outer_frame">
 		<p>Zeitzone</p>
 		<select name="timezone" id="timezone" onchange="timeZoneChanged()">
 			<option>UTC-12:00</option>
@@ -127,24 +136,12 @@
 			<option>UTC+14:00</option>
 		</select>
 	</div>
-
-	<div class="outer_frame">
-		<p>Dialekt</p>
-		<select name="dialect" id="dialect" onchange="dialectChanged()">
-			<option>Ossi</option>
-			<option>Rhein-Ruhr</option>
-			<option>Wessi</option>
-			<option>Schwaben</option>
-		</select>
-	</div>
-
 	<div class="outer_frame">
 		<p>Optionen</p>
 		<div>
 			<label><input type="checkbox" name="heartbeat" id="heartbeat"
-					onchange="heartbeatEnableChanged()">Heartbeat</label><br>
-			<label><input type="checkbox" name="esist" id="esist" onchange="esIstEnableChanged()">"Es Ist"
-				anzeigen</label>
+					onchange="heartbeatEnableChanged()">Heartbeat</label>
+			<br>
 		</div>
 	</div>
 
@@ -155,7 +152,7 @@
 		<div class="buttondiv">
 			<button class="colorbutton" onclick="saveNtpServer()">speichern</button>
 		</div>
-	</div>
+	</div> -->
 
 	<script>
 		var lastBackground = '';
@@ -200,14 +197,13 @@
 			}
 		}
 
-
 		function displayModeChanged() {
 			var newMode;
 			var param1 = document.getElementById("param1").value;
-			var color = document.getElementById("color").value;
-			var color = document.getElementById("color").selectedIndex;
-
 			var param2 = document.getElementById("param2").value;
+			var color = document.getElementById("color").selectedIndex;
+			var displayMode = document.getElementById("displaymode").selectedIndex;
+
 			var displayModeCombo = document.getElementById("displaymode");
 			switch (displayModeCombo.selectedIndex) {
 				case 0: // Rise
@@ -237,9 +233,9 @@
 			}
 			var xhttp = new XMLHttpRequest();
 			xhttp.open("GET", "http://" + location.hostname
-				+ "/setmode?value=" + newMode
-				+ "&param1=" + param1
+				+ "/setmode?value=" + displayMode
 				+ "&color=" + color
+				+ "&param1=" + param1
 				+ "&param2=" + param2, true);
 			xhttp.send();
 		}
