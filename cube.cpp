@@ -138,6 +138,7 @@ void AnimationClass::xMinus()
 RiseAnimationClass::RiseAnimationClass(char density, char length, ColumnColor color)
 {
     Serial.println("RiseAnimationClass created");
+    // density = density < 2 ? 2 : density;
     this->density = density;
     this->length = length;
     this->color = color;
@@ -147,6 +148,7 @@ RiseAnimationClass::RiseAnimationClass(char density, char length, ColumnColor co
 FallAnimationClass::FallAnimationClass(char density, char length)
 {
     Serial.println("FallAnimationClass created");
+    density = density < 2 ? 2 : density;
     this->density = density;
     this->length = length;
 }
@@ -161,10 +163,10 @@ WallAnimationClass::WallAnimationClass(ColumnColor color)
 unsigned char *WallAnimationClass::printNextFrame()
 {
     unsigned char i;
-     clear();
+    clear();
     switch (color)
     {
-    case ColumnColor::Red:       
+    case ColumnColor::Red:
         for (i = 0; i < 16; i++)
             pCube[i] = 0xFF;
         for (i = 48; i < 64; i++)
@@ -179,7 +181,7 @@ unsigned char *WallAnimationClass::printNextFrame()
             pCube[i] = 0xFF;
         break;
     case ColumnColor::Cyan:
-         for (i = 24; i < 40; i++)
+        for (i = 24; i < 40; i++)
             pCube[i] = 0xFF;
         break;
     case ColumnColor::Magenta:
@@ -187,14 +189,14 @@ unsigned char *WallAnimationClass::printNextFrame()
             pCube[i] = 0xFF;
         break;
     case ColumnColor::Yellow:
-         for (i = 8; i < 24; i++)
+        for (i = 8; i < 24; i++)
             pCube[i] = 0xFF;
         break;
     case ColumnColor::All:
-         for (i = 0; i < 64; i++)
+        for (i = 0; i < 64; i++)
             pCube[i] = 0xFF;
         break;
-    case ColumnColor::None:         
+    case ColumnColor::None:
         break;
     default:
         break;
@@ -214,7 +216,31 @@ unsigned char *RiseAnimationClass::printNextFrame()
     for (i = 0; i < random(density); i++)
     {
         x = random(8);
-        y = random(8);
+
+        if (color == ColumnColor::Red)
+            y = random(2) + 0;
+        else if (color == ColumnColor::Green)
+            y = random(2) + 2;
+        else if (color == ColumnColor::Blue)
+            y = random(2) + 4;
+        else if (color == ColumnColor::Cyan)
+        {
+            y = 3;
+            pCube[funGetColumn(x, y + 1)] |= 0x01;
+        }
+        else if (color == ColumnColor::Magenta)
+        {
+            y = 5;
+            pCube[funGetColumn(x, y + 1)] |= 0x01;
+        }
+        else if (color == ColumnColor::Yellow)
+        {
+            y = 1;
+            pCube[funGetColumn(x, y + 1)] |= 0x01;
+        }
+        else
+            y = random(8);
+
         pCube[funGetColumn(x, y)] |= 0x01;
     }
     return pCube;

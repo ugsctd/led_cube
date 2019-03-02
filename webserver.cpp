@@ -526,6 +526,10 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
       color = ColumnColor::Magenta;
     if (request->arg("color") == "5")
       color = ColumnColor::Yellow;
+    if (request->arg("color") == "6")
+      color = ColumnColor::All;
+    if (request->arg("color") == "7")
+      color = ColumnColor::None;
   }
   if (mode == AnimationType::invalid)
   {
