@@ -29,7 +29,7 @@ void CubeClass::setup(bool altSerial)
         else
             Serial.write(0xAD);
     }
-    currentAnimation = new RiseAnimationClass(3, 1, ColumnColor::Red);
+    currentAnimation = new RiseAnimationClass(3, 1, ColumnColor::All);
 }
 
 // Prints the next frame and waits
@@ -59,7 +59,7 @@ void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, Col
         currentAnimation = new RiseAnimationClass(param1, param2.toInt(), color);
         break;
     case AnimationType::Fall:
-        currentAnimation = new FallAnimationClass(param1, param2.toInt());
+        currentAnimation = new FallAnimationClass(param1, param2.toInt(), color);
         break;
     case AnimationType::Letter:
         currentAnimation = new LetterAnimationClass(param2[0], color);
@@ -70,12 +70,16 @@ void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, Col
     case AnimationType::Wall:
         currentAnimation = new WallAnimationClass(color);
         break;
+    case AnimationType::Time:
+        currentAnimation = new TimeAnimationClass(param2);
+        break;
     case AnimationType::Random:
         currentAnimation = new BlinkAnimationClass(10);
         break;
     default:
         break;
     }
+    currentAnimation->clear();
 }
 
 //  returns the column index in the cube when asked for x,y coordinates
@@ -86,8 +90,8 @@ unsigned char AnimationClass::funGetColumn(unsigned char x, unsigned char y)
 
 void AnimationClass::clear()
 {
-    char i;
-    for (i = 0; i < COLUMN_COUNT; i++)
+    // char i;
+    for (char i = 0; i < COLUMN_COUNT; i++)
         pCube[i] = 0x00;
 }
 
@@ -145,14 +149,26 @@ RiseAnimationClass::RiseAnimationClass(char density, char length, ColumnColor co
 }
 
 // Constructor, loads default values
-FallAnimationClass::FallAnimationClass(char density, char length)
+FallAnimationClass::FallAnimationClass(char density, char length, ColumnColor color)
 {
     Serial.println("FallAnimationClass created");
-    density = density < 2 ? 2 : density;
+    // density = density < 2 ? 2 : density;
     this->density = density;
+    this->color = color;
     this->length = length;
 }
 
+// Constructor, loads default values
+TimeAnimationClass::TimeAnimationClass(String time)
+{
+    Serial.println("TimeAnimationClass created");
+    // this->color = color;
+}
+
+unsigned char *TimeAnimationClass::printNextFrame()
+{
+    return pCube;
+}
 // Constructor, loads default values
 WallAnimationClass::WallAnimationClass(ColumnColor color)
 {
@@ -193,8 +209,7 @@ unsigned char *WallAnimationClass::printNextFrame()
             pCube[i] = 0xFF;
         break;
     case ColumnColor::All:
-        for (i = 0; i < 64; i++)
-            pCube[i] = 0xFF;
+        fill();
         break;
     case ColumnColor::None:
         break;
@@ -245,7 +260,6 @@ unsigned char *RiseAnimationClass::printNextFrame()
     }
     return pCube;
 }
-
 unsigned char *FallAnimationClass::printNextFrame()
 {
     unsigned char i, x, y;
@@ -258,12 +272,36 @@ unsigned char *FallAnimationClass::printNextFrame()
     for (i = 0; i < random(density); i++)
     {
         x = random(8);
-        y = random(8);
+
+        if (color == ColumnColor::Red)
+            y = random(2) + 0;
+        else if (color == ColumnColor::Green)
+            y = random(2) + 2;
+        else if (color == ColumnColor::Blue)
+            y = random(2) + 4;
+        else if (color == ColumnColor::Cyan)
+        {
+            y = 3;
+            pCube[funGetColumn(x, y + 1)] |= 0x80;
+        }
+        else if (color == ColumnColor::Magenta)
+        {
+            y = 5;
+            pCube[funGetColumn(x, y + 1)] |= 0x80;
+        }
+        else if (color == ColumnColor::Yellow)
+        {
+            y = 1;
+            pCube[funGetColumn(x, y + 1)] |= 0x80;
+        }
+        else
+            y = random(8);
+
         pCube[funGetColumn(x, y)] |= 0x80;
     }
     return pCube;
 }
-// Constructor, loads default values
+
 BlinkAnimationClass::BlinkAnimationClass(int skip)
 {
     this->skip = skip;
@@ -286,7 +324,7 @@ unsigned char *BlinkAnimationClass::printNextFrame()
         counter++;
     return pCube;
 }
-// Constructor, loads default values
+
 LetterAnimationClass::LetterAnimationClass(char letter, ColumnColor color)
 {
     Serial.println(letter);

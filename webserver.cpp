@@ -363,35 +363,9 @@ void WebServerClass::handleSetDelay(AsyncWebServerRequest *request)
 }
 void WebServerClass::handleDebug(AsyncWebServerRequest *request)
 {
-  // if(request->hasArg("led") &&
-  // 		   request->hasArg("r") &&
-  // 		   request->hasArg("g") &&
-  // 		   request->hasArg("b"))
-  // {
-  // int led = request->arg("led").toInt();
-  // int r = request->arg("r").toInt();
-  // int g = request->arg("g").toInt();
-  // int b = request->arg("b").toInt();
-  // if(led < 0) led = 0;
-  // if(led >= NUM_PIXELS) led = NUM_PIXELS - 1;
-  // if(r < 0) r = 0;
-  // if(r > 255) r = 255;
-  // if(g < 0) g = 0;
-  // if(g > 255) g = 255;
-  // if(b < 0) b = 0;
-  // if(b > 255) b = 255;
-
-  // LED.currentValues[led*3+0] = r;
-  // LED.currentValues[led*3+1] = g;
-  // LED.currentValues[led*3+2] = b;
-  // LED.show();
-  // 	Config.debugMode = 1;
-  // }
 
   if (request->hasArg("clear"))
   {
-    // for(int i=0; i<3*NUM_PIXELS; i++) LED.currentValues[i] = 0;
-    // LED.show();
   }
 
   if (request->hasArg("end"))
@@ -432,27 +406,7 @@ void WebServerClass::handleSetTimeZone(AsyncWebServerRequest *request)
   this->ws.textAll("{\"timezone\":\"" + request->arg("value") + "\"}");
 }
 
-////---------------------------------------------------------------------------------------
-//// handleGetTimeZone
-////
-////
-////
-//// -> --
-//// <- --
-////---------------------------------------------------------------------------------------
-//void WebServerClass::handleGetTimeZone()
-//{
-//	request->send(200, "text/plain", String(Config.timeZone));
-//}
-//
-//---------------------------------------------------------------------------------------
 // handleSetDialect
-//
-//
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
 {
   if (request->hasArg("value"))
@@ -466,29 +420,8 @@ void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
   this->ws.textAll("{\"dialect\":\"" + request->arg("value") + "\"}");
 }
 
-////---------------------------------------------------------------------------------------
-//// handleGetTimeZone
-////
-////
-////
-//// -> --
-//// <- --
-////---------------------------------------------------------------------------------------
-//void WebServerClass::handleGetDialect()
-//{
-//  request->send(200, "text/plain", String(Config.dialect));
-//}
-//
-//
-//---------------------------------------------------------------------------------------
-// handleSetMode
-//
 // Handles the /setmode request. Sets the display mode to one of the allowed values,
 // saves it as the new default mode.
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
 {
   AnimationType mode = AnimationType::invalid;
@@ -507,6 +440,10 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
     if (request->arg("value") == "4")
       mode = AnimationType::Wall;
     if (request->arg("value") == "5")
+      mode = AnimationType::Blink;
+    if (request->arg("value") == "6")
+      mode = AnimationType::Time;
+    if (request->arg("value") == "7")
       mode = AnimationType::Random;
   }
   ColumnColor color = ColumnColor::Red;
@@ -550,7 +487,7 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
 //// -> --
 //// <- --
 ////---------------------------------------------------------------------------------------
-//void WebServerClass::handleGetMode()
+//void WebServerClass::handleGetMode(AsyncWebServerRequest *request)
 //{
 //	int mode = 0;
 //	switch(Config.defaultMode)
@@ -649,41 +586,7 @@ void WebServerClass::handleInfo(AsyncWebServerRequest *request)
   json["flashsize"] = ESP.getFlashChipRealSize();
   json["resetreason"] = ESP.getResetReason();
   json["resetinfo"] = ESP.getResetInfo();
-  //	switch(LED.getMode())
-  //	{
-  //	case DisplayMode::plain:
-  //		json["mode"] = "plain"; break;
-  //	case DisplayMode::fade:
-  //		json["mode"] = "fade"; break;
-  //	case DisplayMode::flyingLettersVertical:
-  //		json["mode"] = "flyingLettersVertical"; break;
-  //	case DisplayMode::matrix:
-  //		json["mode"] = "matrix"; break;
-  //	case DisplayMode::heart:
-  //		json["mode"] = "heart"; break;
-  //	case DisplayMode::stars:
-  //		json["mode"] = "stars"; break;
-  //	case DisplayMode::red:
-  //		json["mode"] = "red"; break;
-  //	case DisplayMode::green:
-  //		json["mode"] = "green"; break;
-  //	case DisplayMode::blue:
-  //		json["mode"] = "blue"; break;
-  //	case DisplayMode::yellowHourglass:
-  //		json["mode"] = "yellowHourglass"; break;
-  //	case DisplayMode::greenHourglass:
-  //		json["mode"] = "greenHourglass"; break;
-  //	case DisplayMode::update:
-  //		json["mode"] = "update"; break;
-  //	case DisplayMode::updateComplete:
-  //		json["mode"] = "updateComplete"; break;
-  //	case DisplayMode::updateError:
-  //		json["mode"] = "updateError"; break;
-  //	case DisplayMode::wifiManager:
-  //		json["mode"] = "wifiManager"; break;
-  //	default:
-  //		json["mode"] = "unknown"; break;
-  //	}
+  
 
   if (request->hasArg("pretty"))
   {
@@ -721,41 +624,21 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 
   JsonObject &json = jsonBuffer.createObject();
 
-  json["ntp"] = Config.ntpserver.toString();
+  // json["ntp"] = Config.ntpserver.toString();
 
-  int mode = 0;
-  switch (Config.defaultMode)
-  {
-  case DisplayMode::plain:
-    mode = 0;
-    break;
-  case DisplayMode::fade:
-    mode = 1;
-    break;
-  case DisplayMode::flyingLettersVerticalUp:
-    mode = 2;
-    break;
-  case DisplayMode::flyingLettersVerticalDown:
-    mode = 3;
-    break;
-  case DisplayMode::explode:
-    mode = 4;
-    break;
-  default:
-    mode = 0;
-    break;
-  }
+  int mode = static_cast<int>(Cube.type);
 
   json["mode"] = String(mode);
+  json["delay"] = String(Config.delay);
 
-  if (Config.heartbeat)
-    json["heartbeat"] = "1";
-  else
-    json["heartbeat"] = "0";
+  // if (Config.heartbeat)
+  //   json["heartbeat"] = "1";
+  // else
+  //   json["heartbeat"] = "0";
 
-  json["dialect"] = String(Config.dialect);
-  json["timezone"] = String(Config.timeZone);
-  json["test"] = "pass";
+  // json["dialect"] = String(Config.dialect);
+  // json["timezone"] = String(Config.timeZone);
+  // json["test"] = "pass";
 
   if (request->hasArg("pretty"))
   {

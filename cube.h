@@ -42,13 +42,14 @@ enum class ColumnColor
 
 enum class AnimationType
 {
-  Wall,
   Rise,
   Fall,
   Letter,
   Say,
-  Random,
+  Wall,
   Blink,
+  Time,
+  Random,
   heart,
   fire,
   plasma,
@@ -70,11 +71,11 @@ class AnimationClass
 {
 public:
   virtual unsigned char *printNextFrame() = 0;
+  void clear();
 
 protected:
   unsigned char funGetColumn(unsigned char x, unsigned char y);
   unsigned char pCube[COLUMN_COUNT];
-  void clear();
   void fill();
   void xPlus();
   void xMinus();
@@ -125,14 +126,15 @@ private:
 class FallAnimationClass : public AnimationClass
 {
 public:
-  FallAnimationClass(char density, char length);
+  FallAnimationClass(char density, char length, ColumnColor color);
   unsigned char *printNextFrame();
 
 private:
   char length;
+  ColumnColor color;
   char density;
 };
-
+// Prints a letter/digit in a given color
 class LetterAnimationClass : public AnimationClass
 {
 public:
@@ -156,6 +158,19 @@ private:
   unsigned char letter_T[64]{0xc0, 0xc0, 0xc0, 0xff, 0xff, 0xc0, 0xc0, 0xc0};
   unsigned char letter_B[64]{0x1E, 0x22, 0x22, 0x1E, 0x22, 0x22, 0x1E};
   unsigned char letter_X[64]{0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81};
+};
+
+class TimeAnimationClass : public AnimationClass
+{
+public:
+  // TimeAnimationClass(char h, char m, char s);
+  TimeAnimationClass(String time);
+  unsigned char *printNextFrame();
+
+private:
+  char h;
+  char m;
+  char s;
 };
 
 class RandomAnimationClass : public AnimationClass
