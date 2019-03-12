@@ -8,7 +8,6 @@ using namespace std;
 // global instance
 CubeClass Cube = CubeClass();
 
-typedef std::array<unsigned char, 64> letterArray;
 bool altTx = true;
 // Tries to establish connection to the cube on 38400.
 // -> altSerial: true means using Serial1 on D4 (GPIO2)
@@ -69,6 +68,9 @@ void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, Col
     case AnimationType::Blink:
         currentAnimation = new BlinkAnimationClass(param1);
         break;
+    case AnimationType::Say:
+        currentAnimation = new SayAnimationClass(param2, color);
+        break;
     case AnimationType::Wall:
         currentAnimation = new WallAnimationClass(color);
         break;
@@ -87,31 +89,40 @@ void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, Col
 //  returns the column index in the cube when asked for x,y coordinates
 unsigned char AnimationClass::funGetColumn(unsigned char x, unsigned char y)
 {
-    return (8 * y + x);
+    return (N * y + x);
 }
 // Function to rotate the matrix 90 degree clockwise
-void AnimationClass::rotate90Clockwise(int a[N][N])
+letterArray AnimationClass::rotate90Clockwise(letterArray rows)
 {
+    letterArray rows3 = {0, 0, 0, 0, 0, 0, 0, 0};
 
-    // Traverse each cycle
-    for (int i = 0; i < N / 2; i++)
+    for (int i = 0; i < N; ++i)
     {
-        for (int j = i; j < N - i - 1; j++)
+        for (int j = 0; j < N; ++j)
         {
-
-            // Swap elements of each cycle
-            // in clockwise direction
-            int temp = a[i][j];
-            a[i][j] = a[N - 1 - j][i];
-            a[N - 1 - j][i] = a[N - 1 - i][N - 1 - j];
-            a[N - 1 - i][N - 1 - j] = a[j][N - 1 - i];
-            a[j][N - 1 - i] = temp;
+            rows3[i] = (((rows[j] & (1 << (N - 1 - i))) >> (N - 1 - i)) << j) | rows3[i];
         }
     }
+    return rows3;
+}
+// Function to rotate the matrix 90 degree anticlockwise
+
+letterArray AnimationClass::rotate90AntiClockwise(letterArray rows)
+{
+    letterArray rows2 = {0, 0, 0, 0, 0, 0, 0, 0};
+    // std::array<unsigned char, N> rows2 = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    for (int i = 0; i < N; ++i)
+    {
+        for (int j = 0; j < N; ++j)
+        {
+            rows2[i] = (((rows[j] & (1 << i)) >> i) << (N - 1 - j)) | rows2[i];
+        }
+    }
+    return rows2;
 }
 void AnimationClass::clear()
 {
-    // char i;
     for (char i = 0; i < COLUMN_COUNT; i++)
         pCube[i] = 0x00;
 }
@@ -1214,5 +1225,81 @@ std::map<char, letterArray> alphabet = create_alphabet();
 unsigned char *LetterAnimationClass::printNextFrame()
 {
     clear();
-    return alphabet[letter].data();
+    letterArray letterRotated = rotate90AntiClockwise(alphabet[letter]);
+
+    int row = 7;
+    if (color == ColumnColor::Red)
+        row = 1;
+    if (color == ColumnColor::Green)
+        row = 3;
+    if (color == ColumnColor::Blue)
+        row = 5;
+    for (int i = 0; i < 8; i++)
+    {
+        pCube[i + 8 * row] = letterRotated[i];
+    }
+    return pCube;
+}
+
+SayAnimationClass::SayAnimationClass(String what, ColumnColor color)
+{
+    Serial.println(what);
+    this->what = what;
+    this->color = color;
+}
+int sayLetterCounter = 0;
+
+unsigned char *SayAnimationClass::printNextFrame()
+{
+    clear();
+    sayLetterCounter++;
+    int letterIndex = sayLetterCounter % 10000;
+    if (letterIndex >= what.length())
+    {
+        sayLetterCounter = 0;
+        letterIndex = sayLetterCounter % 10000;
+    }
+    letterArray letterRotated = rotate90AntiClockwise(alphabet[what[letterIndex]]);
+
+    int startRow, endRow = 0;
+    if (color == ColumnColor::Red)
+    {
+        startRow = 6;
+        endRow = 7;
+    }
+    else if (color == ColumnColor::Green)
+    {
+        startRow = 2;
+        endRow = 3;
+    }
+    else if (color == ColumnColor::Blue)
+    {
+        startRow = 4;
+        endRow = 5;
+    }
+    else if (color == ColumnColor::Cyan)
+    {
+        startRow = 3;
+        endRow = 4;
+    }
+    else if (color == ColumnColor::Magenta)
+    {
+        startRow = 5;
+        endRow = 6;
+    }
+    else if (color == ColumnColor::Yellow)
+    {
+        startRow = 1;
+        endRow = 2;
+    }
+    else if (color == ColumnColor::All)
+    {
+        startRow = 0;
+        endRow = 7;
+    }
+
+    for (int i = 8 * startRow; i < 8 * (endRow + 1); i++)
+        pCube[i] = letterRotated[i % 8];
+
+    return pCube;
 }

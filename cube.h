@@ -70,6 +70,7 @@ enum class AnimationType
   invalid
 };
 
+typedef std::array<unsigned char, 8> letterArray;
 //Abstract class for animations
 class AnimationClass
 {
@@ -89,9 +90,10 @@ protected:
   void zMinus();
   void moveAllRight();
   void moveAllLeft();
-  
-#define N 4
-  void rotate90Clockwise(int a[N][N]);
+
+#define N 8
+  letterArray rotate90Clockwise(letterArray rows);
+  letterArray rotate90AntiClockwise(letterArray rows);
 };
 
 //Randomly generated particles start at the bottom to dissappear at the top
@@ -154,6 +156,17 @@ private:
   char letter;
 };
 
+// Prints a letter/digit in a given color
+class SayAnimationClass : public AnimationClass
+{
+public:
+  SayAnimationClass(String what, ColumnColor color);
+  unsigned char *printNextFrame();
+
+private:
+  ColumnColor color;
+  String what;
+};
 class TimeAnimationClass : public AnimationClass
 {
 public:
