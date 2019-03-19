@@ -30,7 +30,7 @@ typedef void (*TNtpCallback)(uint8_t, uint8_t, uint8_t, uint8_t);
 
 class NtpClass
 {
-public:
+  public:
 	// public methods
 	NtpClass();
 	void begin(IPAddress ip, TNtpCallback callback, int timezone, bool DST);
@@ -41,10 +41,17 @@ public:
 	// public members
 	bool syncInProgress = false;
 
-private:
+	bool lock = 0;
+	int H = 0;
+	int M = 0;
+	int S = 0;
+  private:
 	enum class NtpState
 	{
-		idle, startRequest, waitingForReply, waitingForReload
+		idle,
+		startRequest,
+		waitingForReply,
+		waitingForReload
 	};
 
 	int lastSunday(int year, int month, int lastDayInMonth);
@@ -78,4 +85,3 @@ private:
 extern NtpClass NTP;
 
 #endif
-

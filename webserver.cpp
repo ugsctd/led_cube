@@ -424,7 +424,7 @@ void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
 // saves it as the new default mode.
 void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
 {
-  AnimationType mode = AnimationType::invalid;
+  AnimationType mode = AnimationType::Invalid;
 
   if (request->hasArg("value"))
   {
@@ -466,9 +466,11 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
     if (request->arg("color") == "6")
       color = ColumnColor::All;
     if (request->arg("color") == "7")
+      color = ColumnColor::RedFront;
+    if (request->arg("color") == "8")
       color = ColumnColor::None;
   }
-  if (mode == AnimationType::invalid)
+  if (mode == AnimationType::Invalid)
   {
     request->send(400, "text/plain", "ERR");
   }

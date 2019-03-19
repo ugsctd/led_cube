@@ -41,6 +41,7 @@ enum class ColumnColor
   Magenta,
   Yellow,
   All,
+  RedFront,
   None
 };
 
@@ -54,23 +55,16 @@ enum class AnimationType
   Blink,
   Time,
   Random,
-  heart,
-  fire,
-  plasma,
-  stars,
-  red,
-  green,
-  blue,
   yellowHourglass,
   greenHourglass,
-  update,
-  updateComplete,
-  updateError,
-  wifiManager,
-  invalid
+  Update,
+  UpdateComplete,
+  UpdateError,
+  WifiManager,
+  Invalid
 };
 
-typedef std::array<unsigned char, 8> letterArray;
+typedef array<unsigned char, 8> letterArray;
 //Abstract class for animations
 class AnimationClass
 {
@@ -81,6 +75,7 @@ public:
 protected:
   unsigned char funGetColumn(unsigned char x, unsigned char y);
   unsigned char pCube[COLUMN_COUNT];
+  ColumnColor color;
   void fill();
   void xPlus();
   void xMinus();
@@ -92,6 +87,8 @@ protected:
   void moveAllLeft();
 
 #define N 8
+  void printImageToColor(letterArray arr, ColumnColor color);
+
   letterArray rotate90Clockwise(letterArray rows);
   letterArray rotate90AntiClockwise(letterArray rows);
 };
@@ -106,7 +103,6 @@ public:
 private:
   char length;
   char density;
-  ColumnColor color;
 };
 
 //Flashes the whole cube
@@ -127,9 +123,6 @@ class WallAnimationClass : public AnimationClass
 public:
   WallAnimationClass(ColumnColor color);
   unsigned char *printNextFrame();
-
-private:
-  ColumnColor color;
 };
 //Randomly generated particles start at the top to dissappear at the bottom
 class FallAnimationClass : public AnimationClass
@@ -140,7 +133,6 @@ public:
 
 private:
   char length;
-  ColumnColor color;
   char density;
 };
 
@@ -152,7 +144,6 @@ public:
   unsigned char *printNextFrame();
 
 private:
-  ColumnColor color;
   char letter;
 };
 
@@ -164,20 +155,22 @@ public:
   unsigned char *printNextFrame();
 
 private:
-  ColumnColor color;
   String what;
+  int counter = 0;
+  int currentIndex = 0;
 };
 class TimeAnimationClass : public AnimationClass
 {
 public:
-  // TimeAnimationClass(char h, char m, char s);
-  TimeAnimationClass(String time);
+  TimeAnimationClass(ColumnColor color, String am);
   unsigned char *printNextFrame();
 
 private:
-  char h;
-  char m;
-  char s;
+
+  int hour;
+  int minute;
+  int second;
+  String am;
 };
 
 class RandomAnimationClass : public AnimationClass
@@ -187,8 +180,8 @@ public:
   unsigned char *printNextFrame();
 
 private:
-  ColumnColor color;
   char letter;
+  SayAnimationClass say;
 };
 //Entry class for all your LED cube needs
 class CubeClass
@@ -198,10 +191,10 @@ public:
   void printFrame();
   void ChangeAnimation(AnimationType t, char param1, String param2, ColumnColor param3);
   AnimationType type = AnimationType::Rise;
+  AnimationClass *currentAnimation;
 
 private:
   unsigned char pCube[COLUMN_COUNT];
-  AnimationClass *currentAnimation;
 
   int cube = 1;
   bool go = true;

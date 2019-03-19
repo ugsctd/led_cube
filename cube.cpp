@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <HardwareSerial.h>
 #include "cube.h"
+// #include "ntp.h"
 #include "config.h"
 using namespace std;
 
@@ -75,7 +76,7 @@ void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, Col
         currentAnimation = new WallAnimationClass(color);
         break;
     case AnimationType::Time:
-        currentAnimation = new TimeAnimationClass(param2);
+        currentAnimation = new TimeAnimationClass(color, param2);
         break;
     case AnimationType::Random:
         currentAnimation = new BlinkAnimationClass(10);
@@ -174,7 +175,7 @@ void AnimationClass::xMinus()
 RiseAnimationClass::RiseAnimationClass(char density, char length, ColumnColor color)
 {
     Serial.println("RiseAnimationClass created");
-    // density = density < 2 ? 2 : density;
+    density = density < 3 ? 3 : density;
     this->density = density;
     this->length = length;
     this->color = color;
@@ -184,23 +185,13 @@ RiseAnimationClass::RiseAnimationClass(char density, char length, ColumnColor co
 FallAnimationClass::FallAnimationClass(char density, char length, ColumnColor color)
 {
     Serial.println("FallAnimationClass created");
-    // density = density < 2 ? 2 : density;
+    density = density < 3 ? 3 : density;
+
     this->density = density;
     this->color = color;
     this->length = length;
 }
 
-// Constructor, loads default values
-TimeAnimationClass::TimeAnimationClass(String time)
-{
-    Serial.println("TimeAnimationClass created");
-    // this->color = color;
-}
-
-unsigned char *TimeAnimationClass::printNextFrame()
-{
-    return pCube;
-}
 // Constructor, loads default values
 WallAnimationClass::WallAnimationClass(ColumnColor color)
 {
@@ -238,6 +229,10 @@ unsigned char *WallAnimationClass::printNextFrame()
         break;
     case ColumnColor::Yellow:
         for (i = 8; i < 24; i++)
+            pCube[i] = 0xFF;
+        break;
+    case ColumnColor::RedFront:
+        for (i = 48; i < 64; i++)
             pCube[i] = 0xFF;
         break;
     case ColumnColor::All:
@@ -1247,25 +1242,14 @@ SayAnimationClass::SayAnimationClass(String what, ColumnColor color)
     this->what = what;
     this->color = color;
 }
-int sayLetterCounter = 0;
 
-unsigned char *SayAnimationClass::printNextFrame()
+void AnimationClass::printImageToColor(letterArray arr, ColumnColor color)
 {
-    clear();
-    sayLetterCounter++;
-    int letterIndex = sayLetterCounter % 10000;
-    if (letterIndex >= what.length())
-    {
-        sayLetterCounter = 0;
-        letterIndex = sayLetterCounter % 10000;
-    }
-    letterArray letterRotated = rotate90AntiClockwise(alphabet[what[letterIndex]]);
-
     int startRow, endRow = 0;
     if (color == ColumnColor::Red)
     {
-        startRow = 6;
-        endRow = 7;
+        startRow = 0;
+        endRow = 1;
     }
     else if (color == ColumnColor::Green)
     {
@@ -1292,6 +1276,11 @@ unsigned char *SayAnimationClass::printNextFrame()
         startRow = 1;
         endRow = 2;
     }
+    else if (color == ColumnColor::RedFront)
+    {
+        startRow = 6;
+        endRow = 7;
+    }
     else if (color == ColumnColor::All)
     {
         startRow = 0;
@@ -1299,7 +1288,51 @@ unsigned char *SayAnimationClass::printNextFrame()
     }
 
     for (int i = 8 * startRow; i < 8 * (endRow + 1); i++)
-        pCube[i] = letterRotated[i % 8];
+        pCube[i] = arr[i % 8];
+}
+unsigned char *SayAnimationClass::printNextFrame()
+{
+    clear();
+    counter++;
+    int letterIndex = counter % 10000;
+    if (letterIndex == currentIndex)
+        return pCube;
+    currentIndex = letterIndex;
 
+    if (letterIndex >= what.length())
+    {
+        counter = 0;
+        letterIndex = counter % 10000;
+    }
+    letterArray letterRotated = rotate90AntiClockwise(alphabet[what[letterIndex]]);
+
+    printImageToColor(letterRotated, color);
+    return pCube;
+}
+
+// Constructor, loads default values
+TimeAnimationClass::TimeAnimationClass(ColumnColor color, String am)
+{
+    Serial.println("TimeAnimationClass created");
+    this->color = color;
+    this->am = am;
+    // this->say = new SayAnimationClass(sprintf("%d : %d . %d", h, m, s), color);
+}
+
+unsigned char *TimeAnimationClass::printNextFrame()
+{
+    char* what = "15 32 45";
+    // sprintf(what, "%d %d %d", NTP.H, NTP.M, NTP.S);
+    letterArray h1Rotated = rotate90AntiClockwise(alphabet[what[0]]);
+    letterArray h2Rotated = rotate90AntiClockwise(alphabet[what[1]]);
+    letterArray m1Rotated = rotate90AntiClockwise(alphabet[what[3]]);
+    letterArray m2Rotated = rotate90AntiClockwise(alphabet[what[4]]);
+    letterArray s1Rotated = rotate90AntiClockwise(alphabet[what[6]]);
+    letterArray s2Rotated = rotate90AntiClockwise(alphabet[what[7]]);
+
+    printImageToColor(h1Rotated, ColumnColor::RedFront);
+    printImageToColor(h2Rotated, ColumnColor::Blue);
+    printImageToColor(m1Rotated, ColumnColor::Green);
+    printImageToColor(m2Rotated, ColumnColor::Red);
     return pCube;
 }
