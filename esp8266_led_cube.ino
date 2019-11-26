@@ -1,5 +1,5 @@
 #include <Ticker.h>
-
+// #include <stdint.h>
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
 #include <Ticker.h>
@@ -16,36 +16,36 @@
 // #define PRODUCTION
 #ifndef PRODUCTION
 
-#include "RemoteDebug.h"
-RemoteDebug Debug;
+// #include "RemoteDebug.h"
+// RemoteDebug Debug;
 
-bool debug = false;
+// bool debug = false;
 
-#define VERBOSE(...)                 \
-  if (Debug.isActive(Debug.VERBOSE)) \
-  {                                  \
-    Debug.printf(__VA_ARGS__);       \
-  }
-#define DEBUG(...)                 \
-  if (Debug.isActive(Debug.DEBUG)) \
-  {                                \
-    Debug.printf(__VA_ARGS__);     \
-  }
-#define INFO(...)                 \
-  if (Debug.isActive(Debug.INFO)) \
-  {                               \
-    Debug.printf(__VA_ARGS__);    \
-  }
-#define WARNING(...)                 \
-  if (Debug.isActive(Debug.WARNING)) \
-  {                                  \
-    Debug.printf(__VA_ARGS__);       \
-  }
-#define ERROR(...)                 \
-  if (Debug.isActive(Debug.ERROR)) \
-  {                                \
-    Debug.printf(__VA_ARGS__);     \
-  }
+// #define VERBOSE(...)                 \
+//   if (Debug.isActive(Debug.VERBOSE)) \
+//   {                                  \
+//     Debug.printf(__VA_ARGS__);       \
+//   }
+// #define DEBUG(...)                 \
+//   if (Debug.isActive(Debug.DEBUG)) \
+//   {                                \
+//     Debug.printf(__VA_ARGS__);     \
+//   }
+// #define INFO(...)                 \
+//   if (Debug.isActive(Debug.INFO)) \
+//   {                               \
+//     Debug.printf(__VA_ARGS__);    \
+//   }
+// #define WARNING(...)                 \
+//   if (Debug.isActive(Debug.WARNING)) \
+//   {                                  \
+//     Debug.printf(__VA_ARGS__);       \
+//   }
+// #define ERROR(...)                 \
+//   if (Debug.isActive(Debug.ERROR)) \
+//   {                                \
+//     Debug.printf(__VA_ARGS__);     \
+//   }
 
 #endif
 
@@ -176,13 +176,13 @@ void setup()
   }
 
 // Setup debugging capabilites
-#ifndef PRODUCTION
-  Debug.begin("cube");
-  Debug.setResetCmdEnabled(true); // Enable the reset command
-  Debug.showTime(true);           // To show time
-  Debug.showColors(true);         // Colors
-  Debug.setSerialEnabled(true);   // if you wants serial echo - only recommended if ESP8266 is plugged in USB
-#endif
+// #ifndef PRODUCTION
+//   Debug.begin("cube");
+//   Debug.setResetCmdEnabled(true); // Enable the reset command
+//   Debug.showTime(true);           // To show time
+//   Debug.showColors(true);         // Colors
+//   Debug.setSerialEnabled(true);   // if you wants serial echo - only recommended if ESP8266 is plugged in USB
+// #endif
 
   // OTA update
   Serial.println(F("Initializing OTA"));
@@ -267,9 +267,9 @@ void loop()
     Config.save();
   }
 
-#ifndef PRODUCTION
-  Debug.handle();
-#endif
+// #ifndef PRODUCTION
+//   Debug.handle();
+// #endif
 }
 // ./esptool.py --port /dev/tty.usbserial --baud 460800 write_flash --flash_size=8m 0 /var/folders/yh/bv744591099f3x24xbkc22zw0000gn/T/build006b1a55228a1b90dda210fcddb62452.tmp/test.ino.bin
 // FlashSize 1M (128k SPIFFS)

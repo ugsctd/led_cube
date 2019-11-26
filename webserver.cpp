@@ -25,11 +25,8 @@
 #include "cube.h"
 
 bool shouldReboot = false;
-JsonObject &buildConfigurationString(JsonBuffer &jsonBuffer)
+JsonObject buildConfigurationString(JsonDocument json)
 {
-
-  JsonObject &json = jsonBuffer.createObject();
-
   json["ntp"] = Config.ntpserver.toString();
 
   int mode = 0;
@@ -62,7 +59,7 @@ JsonObject &buildConfigurationString(JsonBuffer &jsonBuffer)
   json["dialect"] = String(Config.dialect);
   json["timezone"] = String(Config.timeZone);
 
-  return json;
+  return json.to<JsonObject>();
 }
 
 String getValue(String data, char separator, int index)
@@ -101,13 +98,14 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     //client->printf("Configuration Broadcast for UID: %u", client->id());
     //client->ping();
 
-    StaticJsonBuffer<512> jsonBuffer;
-    JsonObject &json = buildConfigurationString(jsonBuffer);
-    size_t len = json.measureLength();
+    StaticJsonDocument<512> jsonDocument;
+    JsonObject json = buildConfigurationString(jsonDocument);
+    size_t len = measureJson(json);
     AsyncWebSocketMessageBuffer *buffer = server->makeBuffer(len); //  creates a buffer (len + 1) for you.
     if (buffer)
     {
-      json.printTo((char *)buffer->get(), len + 1);
+      serializeJson(json, (char *)buffer->get(), len + 1);
+      // json.printTo((char *)buffer->get(), len + 1);
       client->text(buffer);
     }
   }
@@ -447,7 +445,7 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
       mode = AnimationType::Random;
   }
   ColumnColor color = ColumnColor::Red;
-  
+
   if (request->hasArg("color"))
   {
     // handle each allowed value for safety
@@ -572,9 +570,9 @@ void WebServerClass::handleSetNtpServer(AsyncWebServerRequest *request)
 void WebServerClass::handleInfo(AsyncWebServerRequest *request)
 {
   Serial.println("Info timer");
-  StaticJsonBuffer<512> jsonBuffer;
+  StaticJsonDocument<512> json;
   char buf[512];
-  JsonObject &json = jsonBuffer.createObject();
+  // JsonObject &json = jsonBuffer.createObject();
   json["heap"] = ESP.getFreeHeap();
   json["sketchsize"] = ESP.getSketchSize();
   json["sketchspace"] = ESP.getFreeSketchSpace();
@@ -588,15 +586,17 @@ void WebServerClass::handleInfo(AsyncWebServerRequest *request)
   json["flashsize"] = ESP.getFlashChipRealSize();
   json["resetreason"] = ESP.getResetReason();
   json["resetinfo"] = ESP.getResetInfo();
-  
 
   if (request->hasArg("pretty"))
   {
-    json.prettyPrintTo(buf, sizeof(buf));
+    serializeJsonPretty(json, buf, sizeof(buf));
+    // json.prettyPrintTo(buf, sizeof(buf));
   }
   else
   {
-    json.printTo(buf, sizeof(buf));
+    
+    serializeJson(json, buf, sizeof(buf));
+    // json.printTo(buf, sizeof(buf));
   }
   request->send(200, "application/json", buf);
 }
@@ -621,12 +621,12 @@ void WebServerClass::handleSetColor(AsyncWebServerRequest *request)
 // Dumps all Config settings as a JSON object
 void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 {
-  StaticJsonBuffer<512> jsonBuffer;
+  StaticJsonDocument<512> json;
   char buf[512];
 
-  JsonObject &json = jsonBuffer.createObject();
+  // JsonObject &json = jsonBuffer.createObject();
 
-  // json["ntp"] = Config.ntpserver.toString();
+  json["ntp"] = Config.ntpserver.toString();
 
   int mode = static_cast<int>(Cube.type);
 
@@ -644,11 +644,15 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
 
   if (request->hasArg("pretty"))
   {
-    json.prettyPrintTo(buf, sizeof(buf));
+    
+    serializeJsonPretty(json, buf, sizeof(buf));
+    // json.prettyPrintTo(buf, sizeof(buf));
   }
   else
   {
-    json.printTo(buf, sizeof(buf));
+    
+    serializeJson(json, buf, sizeof(buf));
+    // json.printTo(buf, sizeof(buf));
   }
 
   request->send(200, "application/json", buf);
