@@ -90,11 +90,6 @@ void timerCallback()
             h = 0;
         }
       }
-      // NTP.lock = true;
-      // NTP.H = h;
-      // NTP.M = m;
-      // NTP.S = s;
-      // NTP.lock = false;
       timeVarLock = false;
     }
 
@@ -125,19 +120,15 @@ void configModeCallback(AsyncWiFiManager *myWiFiManager)
 // the global hour, minute, second and millisecond values.
 void NtpCallback(uint8_t _h, uint8_t _m, uint8_t _s, uint8_t _ms)
 {
-  // Serial.println(F("NtpCallback()"));
+  Serial.printf("Callback local time: %02i:%02i:%02i.%02i\r\n", _h, _m, _s, _ms);
 
-  // wait if timer variable lock is set
-  while (timeVarLock)
-    delay(1);
-
-  // lock timer variables to prevent changes during interrupt
-  timeVarLock = true;
+  // this worked without the lock..
   h = _h;
   m = _m;
   s = _s;
   ms = _ms;
-  timeVarLock = false;
+
+  Serial.printf("Callback stored time: %02i:%02i:%02i.%02i\r\n", h, m, s, ms);
 }
 
 // Initializes everything
@@ -175,14 +166,14 @@ void setup()
     ESP.reset();
   }
 
-// Setup debugging capabilites
-// #ifndef PRODUCTION
-//   Debug.begin("cube");
-//   Debug.setResetCmdEnabled(true); // Enable the reset command
-//   Debug.showTime(true);           // To show time
-//   Debug.showColors(true);         // Colors
-//   Debug.setSerialEnabled(true);   // if you wants serial echo - only recommended if ESP8266 is plugged in USB
-// #endif
+  // Setup debugging capabilites
+  // #ifndef PRODUCTION
+  //   Debug.begin("cube");
+  //   Debug.setResetCmdEnabled(true); // Enable the reset command
+  //   Debug.showTime(true);           // To show time
+  //   Debug.showColors(true);         // Colors
+  //   Debug.setSerialEnabled(true);   // if you wants serial echo - only recommended if ESP8266 is plugged in USB
+  // #endif
 
   // OTA update
   Serial.println(F("Initializing OTA"));
@@ -267,9 +258,9 @@ void loop()
     Config.save();
   }
 
-// #ifndef PRODUCTION
-//   Debug.handle();
-// #endif
+  // #ifndef PRODUCTION
+  //   Debug.handle();
+  // #endif
 }
 // ./esptool.py --port /dev/tty.usbserial --baud 460800 write_flash --flash_size=8m 0 /var/folders/yh/bv744591099f3x24xbkc22zw0000gn/T/build006b1a55228a1b90dda210fcddb62452.tmp/test.ino.bin
 // FlashSize 1M (128k SPIFFS)

@@ -1322,7 +1322,7 @@ TimeAnimationClass::TimeAnimationClass(ColumnColor color, String am)
 unsigned char *TimeAnimationClass::printNextFrame()
 {
     char* what = "15 32 45";
-    // sprintf(what, "%d %d %d", NTP.H, NTP.M, NTP.S);
+    
     letterArray h1Rotated = rotate90AntiClockwise(alphabet[what[0]]);
     letterArray h2Rotated = rotate90AntiClockwise(alphabet[what[1]]);
     letterArray m1Rotated = rotate90AntiClockwise(alphabet[what[3]]);
