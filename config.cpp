@@ -101,11 +101,8 @@ void ConfigClass::reset()
 	this->config->delay = 40;
 	this->delay = this->config->delay;
 
-	this->config->heartbeat = false;
+	this->config->heartbeat = true;
 	this->heartbeat = this->config->heartbeat;
-
-	// this->config->esIst = true;
-	// this->esIst = this->config->esIst;
 
 	this->defaultMode = DisplayMode::plain;
 	this->config->mode = (uint32_t)this->defaultMode;
@@ -114,10 +111,10 @@ void ConfigClass::reset()
 	this->dialect = 0;
 	this->config->dialect = this->dialect;
 
-	this->config->ntpserver[0] = 192;
-	this->config->ntpserver[1] = 53;
-	this->config->ntpserver[2] = 103;
-	this->config->ntpserver[3] = 108;
+	this->config->ntpserver[0] = 129;
+	this->config->ntpserver[1] = 6;
+	this->config->ntpserver[2] = 15;
+	this->config->ntpserver[3] = 28;
 	this->ntpserver[0] = this->config->ntpserver[0];
 	this->ntpserver[1] = this->config->ntpserver[1];
 	this->ntpserver[2] = this->config->ntpserver[2];
@@ -148,7 +145,7 @@ void ConfigClass::load()
 	this->defaultMode = (DisplayMode)this->config->mode;
 	this->heartbeat = this->config->heartbeat;
 	this->delay = this->config->delay;
-	// this->esIst = this->config->esIst;
+	
 	this->timeZone = this->config->timeZone;
 	this->dialect = this->config->dialect;
 	for (int i = 0; i < 4; i++)

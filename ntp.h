@@ -41,10 +41,6 @@ class NtpClass
 	// public members
 	bool syncInProgress = false;
 
-	bool lock = 0;
-	int H = 0;
-	int M = 0;
-	int S = 0;
   private:
 	enum class NtpState
 	{

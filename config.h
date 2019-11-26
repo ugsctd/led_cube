@@ -81,7 +81,7 @@ class ConfigClass
 	DisplayMode defaultMode = DisplayMode::explode;
 
 	int updateProgress = 0;
-	int timeZone = 0;
+	int timeZone = 1;
 	int delayedWriteTimer = 0;
 	bool delayedWriteFlag = false;
 	int dialect = 0;
