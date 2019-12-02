@@ -240,6 +240,7 @@ void loop()
   // do OTA update stuff
   ArduinoOTA.handle();
 
+  Serial.println(F("Loop..."));
   // update LEDs
   Cube.printFrame();
 

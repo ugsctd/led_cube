@@ -29,27 +29,27 @@ JsonObject buildConfigurationString(JsonDocument json)
 {
   json["ntp"] = Config.ntpserver.toString();
 
-  int mode = 0;
-  switch (Config.defaultMode)
-  {
-  case DisplayMode::plain:
-    mode = 0;
-    break;
-  case DisplayMode::fade:
-    mode = 1;
-    break;
-  case DisplayMode::flyingLettersVerticalUp:
-    mode = 2;
-    break;
-  case DisplayMode::flyingLettersVerticalDown:
-    mode = 3;
-    break;
-  default:
-    mode = 0;
-    break;
-  }
+  // int mode = 0;
+  // switch (Config.defaultMode)
+  // {
+  // case DisplayMode::plain:
+  //   mode = 0;
+  //   break;
+  // case DisplayMode::fade:
+  //   mode = 1;
+  //   break;
+  // case DisplayMode::flyingLettersVerticalUp:
+  //   mode = 2;
+  //   break;
+  // case DisplayMode::flyingLettersVerticalDown:
+  //   mode = 3;
+  //   break;
+  // default:
+  //   mode = 0;
+  //   break;
+  // }
 
-  json["mode"] = String(mode);
+  // json["mode"] = String(mode);
 
   if (Config.heartbeat)
     json["heartbeat"] = "1";
@@ -287,14 +287,7 @@ void WebServerClass::begin()
   Serial.println("Started Server");
 }
 
-//---------------------------------------------------------------------------------------
-// handleM
-//
 // Handles the /m request, increments the minutes counter (for testing purposes)
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 extern int h, m;
 void WebServerClass::handleM(AsyncWebServerRequest *request)
 {
@@ -379,14 +372,7 @@ void WebServerClass::handleGetADC(AsyncWebServerRequest *request)
   // request->send(200, "text/plain", String(Brightness.avg));
 }
 
-//---------------------------------------------------------------------------------------
 // handleSetTimeZone
-//
-//
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void WebServerClass::handleSetTimeZone(AsyncWebServerRequest *request)
 {
   if (request->hasArg("value"))
@@ -412,7 +398,6 @@ void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
     int newDialect = request->arg("value").toInt();
     Config.dialect = newDialect;
     Config.save();
-    // LED.changeDialect(Config.dialect);
   }
   request->send(200, "text/plain", "OK");
   this->ws.textAll("{\"dialect\":\"" + request->arg("value") + "\"}");
@@ -473,39 +458,18 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
     request->send(400, "text/plain", "ERR");
   }
   else
-  {
+  {    
+    Config.currentAnimation = (uint32_t)mode;
+    Config.currentColor =(uint32_t) color;
+    Config.save();
+    Serial.print("Set animation to :");
+    Serial.println(Config.delay);
     Cube.ChangeAnimation(mode, request->arg("param1").toInt(), request->arg("param2"), color);
     request->send(200, "text/plain", "OK");
   }
   this->ws.textAll("{\"mode\":\"" + request->arg("value") + "\"}");
 }
-////---------------------------------------------------------------------------------------
-//// handleGetMode
-////
-//// Handles the /getmode request and returns the current default display mode.
-////
-//// -> --
-//// <- --
-////---------------------------------------------------------------------------------------
-//void WebServerClass::handleGetMode(AsyncWebServerRequest *request)
-//{
-//	int mode = 0;
-//	switch(Config.defaultMode)
-//	{
-//	case DisplayMode::plain:
-//		mode = 0; break;
-//	case DisplayMode::fade:
-//		mode = 1; break;
-//	case DisplayMode::flyingLettersVerticalUp:
-//		mode = 2; break;
-//	case DisplayMode::flyingLettersVerticalDown:
-//		mode = 3; break;
-//	default:
-//		mode = 0; break;
-//	}
-//	request->send(200, "text/plain", String(mode));
-//}
-//
+
 ////---------------------------------------------------------------------------------------
 //// handleNotFound
 ////

@@ -166,7 +166,6 @@ public:
   unsigned char *printNextFrame();
 
 private:
-
   int hour;
   int minute;
   int second;

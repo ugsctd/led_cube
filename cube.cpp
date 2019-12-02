@@ -10,6 +10,7 @@ using namespace std;
 CubeClass Cube = CubeClass();
 
 bool altTx = true;
+
 // Tries to establish connection to the cube on 38400.
 // -> altSerial: true means using Serial1 on D4 (GPIO2)
 void CubeClass::setup(bool altSerial)
@@ -31,7 +32,7 @@ void CubeClass::setup(bool altSerial)
         else
             Serial.write(0xAD);
     }
-    currentAnimation = new RiseAnimationClass(3, 1, ColumnColor::All);
+    ChangeAnimation((AnimationType) Config.currentAnimation, 'F', "  Hello!", (ColumnColor) Config.currentColor );
 }
 
 // Prints the next frame and waits
@@ -1321,8 +1322,9 @@ TimeAnimationClass::TimeAnimationClass(ColumnColor color, String am)
 
 unsigned char *TimeAnimationClass::printNextFrame()
 {
-    char* what = "15 32 45";
-    
+    //TODO use actual time instead of mock
+    char *what = "15 32 45";
+
     letterArray h1Rotated = rotate90AntiClockwise(alphabet[what[0]]);
     letterArray h2Rotated = rotate90AntiClockwise(alphabet[what[1]]);
     letterArray m1Rotated = rotate90AntiClockwise(alphabet[what[3]]);

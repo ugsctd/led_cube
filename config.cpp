@@ -7,67 +7,31 @@
 //---------------------------------------------------------------------------------------
 ConfigClass Config = ConfigClass();
 
-//---------------------------------------------------------------------------------------
-// ConfigClass
-//
 // Constructor, loads default values
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 ConfigClass::ConfigClass()
 {
 	this->reset();
 }
 
-//---------------------------------------------------------------------------------------
-// ~ConfigClass
-//
 // destructor
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 ConfigClass::~ConfigClass()
 {
 }
 
-//---------------------------------------------------------------------------------------
-// begin
-//
 // Initializes the class and loads current configuration from EEPROM into class members.
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void ConfigClass::begin()
 {
 	EEPROM.begin(EEPROM_SIZE);
 	this->load();
 }
 
-//---------------------------------------------------------------------------------------
-// saveDelayed
-//
 // Copies the current class member values to EEPROM buffer and writes it to the EEPROM
-// after 10 seconds.
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void ConfigClass::saveDelayed()
 {
 	this->delayedWriteTimer = 1000; // 10 seconds using 10 ms timer
 }
 
-//---------------------------------------------------------------------------------------
-// save
-//
 // Copies the current class member values to EEPROM buffer and writes it to the EEPROM.
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void ConfigClass::save()
 {
 	this->delayedWriteFlag = false;
@@ -76,8 +40,9 @@ void ConfigClass::save()
 	this->config->delay = this->delay;
 	this->config->dialect = this->dialect;
 	this->config->heartbeat = this->heartbeat;
-	// this->config->esIst = this->esIst;
-	this->config->mode = (uint32_t)this->defaultMode;
+
+	this->config->animationType = (uint32_t)this->currentAnimation;
+	this->config->color = (uint32_t)this->currentColor;
 	for (int i = 0; i < 4; i++)
 		this->config->ntpserver[i] = this->ntpserver[i];
 
@@ -86,14 +51,7 @@ void ConfigClass::save()
 	EEPROM.commit();
 }
 
-//---------------------------------------------------------------------------------------
-// reset
-//
 // Sets default values in EEPROM buffer and member variables.
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void ConfigClass::reset()
 {
 	this->config->magic = 0xDEADBEEF;
@@ -104,8 +62,8 @@ void ConfigClass::reset()
 	this->config->heartbeat = true;
 	this->heartbeat = this->config->heartbeat;
 
-	this->defaultMode = DisplayMode::plain;
-	this->config->mode = (uint32_t)this->defaultMode;
+	this->config->animationType = (uint32_t)this->currentAnimation;
+	this->config->color = (uint32_t)this->currentColor;
 	this->timeZone = 0;
 
 	this->dialect = 0;
@@ -121,16 +79,9 @@ void ConfigClass::reset()
 	this->ntpserver[3] = this->config->ntpserver[3];
 }
 
-//---------------------------------------------------------------------------------------
-// load
-//
 // Reads the content of the EEPROM into the EEPROM buffer and copies the values to the
 // public member variables. Resets (and saves) the values to their defaults if the
 // EEPROM data is not initialized.
-//
-// -> --
-// <- --
-//---------------------------------------------------------------------------------------
 void ConfigClass::load()
 {
 	Serial.println("Reading EEPROM config");
@@ -142,10 +93,13 @@ void ConfigClass::load()
 		this->reset();
 		this->save();
 	}
-	this->defaultMode = (DisplayMode)this->config->mode;
+
+	this->currentAnimation = this->config->animationType;
+	this->currentColor = this->config->color;
+
 	this->heartbeat = this->config->heartbeat;
 	this->delay = this->config->delay;
-	
+
 	this->timeZone = this->config->timeZone;
 	this->dialect = this->config->dialect;
 	for (int i = 0; i < 4; i++)
