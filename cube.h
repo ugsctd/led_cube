@@ -21,7 +21,7 @@
 // #include <IPAddress.h>
 #include <stdint.h>
 #include <map>
-#include "alphabet.h"
+#include "static_pictures.h"
 
 #include <SoftwareSerial.h>
 #include <HardwareSerial.h>

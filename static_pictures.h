@@ -8,14 +8,14 @@ using namespace std;
 typedef array<unsigned char, 8> letterArray;
 typedef std::map<char, letterArray> ledArray;
 
-class AlphabetClass
+class PicturesClass
 {
 public:
-    AlphabetClass();
+    PicturesClass();
     ledArray alphabet;
 
 };
 
-extern AlphabetClass Alphabet;
+extern PicturesClass Pictures;
 
 #endif /* _ALPHABET_H_ */

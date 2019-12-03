@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <HardwareSerial.h>
 #include "cube.h"
-#include "alphabet.h"
+#include "static_pictures.h"
 // #include "ntp.h"
 #include "config.h"
 using namespace std;
@@ -365,7 +365,7 @@ LetterAnimationClass::LetterAnimationClass(char letter, ColumnColor color)
 unsigned char *LetterAnimationClass::printNextFrame()
 {
     clear();
-    letterArray letterRotated = rotate90AntiClockwise(Alphabet.alphabet[letter]);
+    letterArray letterRotated = rotate90AntiClockwise(Pictures.alphabet[letter]);
 
     int row = 7;
     if (color == ColumnColor::Red)
@@ -449,7 +449,7 @@ unsigned char *SayAnimationClass::printNextFrame()
         counter = 0;
         letterIndex = counter % 10000;
     }
-    letterArray letterRotated = rotate90AntiClockwise(Alphabet.alphabet[what[letterIndex]]);
+    letterArray letterRotated = rotate90AntiClockwise(Pictures.alphabet[what[letterIndex]]);
 
     printImageToColor(letterRotated, color);
     return pCube;
@@ -469,12 +469,12 @@ unsigned char *TimeAnimationClass::printNextFrame()
     //TODO use actual time instead of mock
     char *what = "15 32 45";
 
-    letterArray h1Rotated = rotate90AntiClockwise(Alphabet.alphabet[what[0]]);
-    letterArray h2Rotated = rotate90AntiClockwise(Alphabet.alphabet[what[1]]);
-    letterArray m1Rotated = rotate90AntiClockwise(Alphabet.alphabet[what[3]]);
-    letterArray m2Rotated = rotate90AntiClockwise(Alphabet.alphabet[what[4]]);
-    letterArray s1Rotated = rotate90AntiClockwise(Alphabet.alphabet[what[6]]);
-    letterArray s2Rotated = rotate90AntiClockwise(Alphabet.alphabet[what[7]]);
+    letterArray h1Rotated = rotate90AntiClockwise(Pictures.alphabet[what[0]]);
+    letterArray h2Rotated = rotate90AntiClockwise(Pictures.alphabet[what[1]]);
+    letterArray m1Rotated = rotate90AntiClockwise(Pictures.alphabet[what[3]]);
+    letterArray m2Rotated = rotate90AntiClockwise(Pictures.alphabet[what[4]]);
+    letterArray s1Rotated = rotate90AntiClockwise(Pictures.alphabet[what[6]]);
+    letterArray s2Rotated = rotate90AntiClockwise(Pictures.alphabet[what[7]]);
 
     printImageToColor(h1Rotated, ColumnColor::RedFront);
     printImageToColor(h2Rotated, ColumnColor::Blue);

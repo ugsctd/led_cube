@@ -1,13 +1,12 @@
 #include <stdint.h>
-#include "alphabet.h"
+#include "static_pictures.h"
 #include <binary.h>
 
 #include <map>
-// using namespace std;
 
-AlphabetClass Alphabet = AlphabetClass();
+PicturesClass Pictures = PicturesClass();
 
-AlphabetClass::AlphabetClass()
+PicturesClass::PicturesClass()
 {
     ledArray alphabet;
     alphabet['1'] = {
