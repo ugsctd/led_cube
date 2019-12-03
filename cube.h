@@ -21,6 +21,7 @@
 // #include <IPAddress.h>
 #include <stdint.h>
 #include <map>
+#include "alphabet.h"
 
 #include <SoftwareSerial.h>
 #include <HardwareSerial.h>
@@ -64,7 +65,6 @@ enum class AnimationType
   Invalid
 };
 
-typedef array<unsigned char, 8> letterArray;
 //Abstract class for animations
 class AnimationClass
 {
