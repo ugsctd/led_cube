@@ -80,6 +80,13 @@ void timerCallback()
     if (ms >= 1000)
     {
       ms -= 1000;
+      Config.s = s;
+      Config.m = m;
+      Config.h = h;
+      
+      Serial.printf("%02i:%02i:%02i", Config.h, Config.m, Config.s);      
+      Serial.println("");
+
       if (++s > 59)
       {
         s = 0;
@@ -90,8 +97,8 @@ void timerCallback()
             h = 0;
         }
       }
-      timeVarLock = false;
     }
+    timeVarLock = false;
 
     // decrement delayed EEPROM config timer
     if (Config.delayedWriteTimer)

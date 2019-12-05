@@ -55,6 +55,9 @@ public:
 	bool heartbeat = false;
 	int delay = 100;
 	bool debugMode = false;
+	uint s = 0;
+	uint m = 0;
+	uint h = 0;
 
 	uint32_t currentAnimation = 1; //Fall
 	uint32_t currentColor = 6;	 //All

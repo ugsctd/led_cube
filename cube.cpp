@@ -464,8 +464,11 @@ TimeAnimationClass::TimeAnimationClass(ColumnColor color, String am)
 
 unsigned char *TimeAnimationClass::printNextFrame()
 {
-    //TODO use actual time instead of mock
-    char *what = "15 32 45";
+    char what[8];
+    sprintf(what, "%02i:%02i:%02i", Config.h, Config.m, Config.s);
+
+    Serial.printf("Printing time: %s", what);
+    Serial.println("");
 
     letterArray h1Rotated = rotate90AntiClockwise(Pictures.alphabet[what[0]]);
     letterArray h2Rotated = rotate90AntiClockwise(Pictures.alphabet[what[1]]);
