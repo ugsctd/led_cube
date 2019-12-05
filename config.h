@@ -28,41 +28,18 @@ typedef struct _config_struct
 
 	bool heartbeat;
 	int delay;
-	uint32_t mode;
 	uint32_t timeZone;
-	uint32_t dialect;
+	uint32_t animationType;
+	uint32_t color;
+	String text;
 } config_struct;
 
-#define EEPROM_SIZE 512
-
-enum class DisplayMode
-{
-	plain,
-	fade,
-	flyingLettersVerticalUp,
-	flyingLettersVerticalDown,
-	explode,
-	random,
-	matrix,
-	heart,
-	fire,
-	plasma,
-	stars,
-	red,
-	green,
-	blue,
-	yellowHourglass,
-	greenHourglass,
-	update,
-	updateComplete,
-	updateError,
-	wifiManager,
-	invalid
-};
+// #define EEPROM_SIZE 512
+#define EEPROM_SIZE 4096
 
 class ConfigClass
 {
-  public:
+public:
 	// public methods
 	ConfigClass();
 	virtual ~ConfigClass();
@@ -71,22 +48,27 @@ class ConfigClass
 	void saveDelayed();
 	void load();
 	void reset();
+	void formatEeprom();
 
 	// public configuration variables
 	IPAddress ntpserver = IPAddress(0, 0, 0, 0);
 	bool heartbeat = false;
 	int delay = 100;
 	bool debugMode = false;
+	uint s = 0;
+	uint m = 0;
+	uint h = 0;
 
-	DisplayMode defaultMode = DisplayMode::explode;
+	uint32_t currentAnimation = 1; //Fall
+	uint32_t currentColor = 6;	 //All
+	String currentText = "icecream!";
 
 	int updateProgress = 0;
 	int timeZone = 1;
 	int delayedWriteTimer = 0;
 	bool delayedWriteFlag = false;
-	int dialect = 0;
 
-  private:
+private:
 	// copy of EEPROM content
 	config_struct *config = (config_struct *)eeprom_data;
 	uint8_t eeprom_data[EEPROM_SIZE];
