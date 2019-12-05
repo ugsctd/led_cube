@@ -24,9 +24,9 @@ You need 3 cables to connect the cube: 5V, GND and one of the others set to seri
 * OTA upgrades
 
 ## TODOS:
-* the cube might crash on some animations as they are buggy
+* the cube crashes on blinking animation
 * time animation - both binary and somehow digital
-* ntp! as I broke it somehow
+* <del>ntp! as I broke it somehow</del>
 * offline support
 * misconfiguration display - no wifi, needs password, welcome, etc.. i think i got the logos, but they don't work
 
@@ -41,4 +41,4 @@ You need 3 cables to connect the cube: 5V, GND and one of the others set to seri
 * Install from Arduino IDE:
     * ArduinoJson
     * WiFiManager from tzapu (i think)
-
+* to run the code properly, you need to push the data to spiffs

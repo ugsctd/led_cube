@@ -18,7 +18,6 @@
 #ifndef _CUBE_H_
 #define _CUBE_H_
 
-// #include <IPAddress.h>
 #include <stdint.h>
 #include <map>
 #include "static_pictures.h"
@@ -28,10 +27,8 @@
 
 #define LAYER_COUNT 8
 #define COLUMN_COUNT 64
-// structure with configuration data to be stored in EEPROM
-using namespace std;
 
-// std::map<char, letterArray> alphabet;
+using namespace std;
 
 enum class ColumnColor
 {
@@ -189,7 +186,6 @@ public:
   void setup(bool altSerial);
   void printFrame();
   void ChangeAnimation(AnimationType t, char param1, String param2, ColumnColor param3);
-  AnimationType type = AnimationType::Rise;
   AnimationClass *currentAnimation;
 
 private:

@@ -38,11 +38,11 @@ void ConfigClass::save()
 
 	this->config->timeZone = this->timeZone;
 	this->config->delay = this->delay;
-	this->config->dialect = this->dialect;
 	this->config->heartbeat = this->heartbeat;
 
 	this->config->animationType = (uint32_t)this->currentAnimation;
 	this->config->color = (uint32_t)this->currentColor;
+	this->config->text = this->currentText;
 	for (int i = 0; i < 4; i++)
 		this->config->ntpserver[i] = this->ntpserver[i];
 
@@ -64,10 +64,9 @@ void ConfigClass::reset()
 
 	this->config->animationType = (uint32_t)this->currentAnimation;
 	this->config->color = (uint32_t)this->currentColor;
-	this->timeZone = 0;
 
-	this->dialect = 0;
-	this->config->dialect = this->dialect;
+	this->config->text = this->currentText;
+	this->timeZone = 0;
 
 	this->config->ntpserver[0] = 129;
 	this->config->ntpserver[1] = 6;
@@ -78,13 +77,24 @@ void ConfigClass::reset()
 	this->ntpserver[2] = this->config->ntpserver[2];
 	this->ntpserver[3] = this->config->ntpserver[3];
 }
-
+void ConfigClass::formatEeprom()
+{
+	Serial.println("Formating EEPROM");
+	// write a 0 to all 4096 bytes of the EEPROM
+	for (int i = 0; i < 4096; i++)
+		EEPROM.write(i, 0);
+	EEPROM.commit();
+	
+	Serial.println("Done...");
+}
 // Reads the content of the EEPROM into the EEPROM buffer and copies the values to the
 // public member variables. Resets (and saves) the values to their defaults if the
 // EEPROM data is not initialized.
 void ConfigClass::load()
 {
+	// this->formatEeprom();
 	Serial.println("Reading EEPROM config");
+
 	for (int i = 0; i < EEPROM_SIZE; i++)
 		this->eeprom_data[i] = EEPROM.read(i);
 	if (this->config->magic != 0xDEADBEEF)
@@ -96,12 +106,12 @@ void ConfigClass::load()
 
 	this->currentAnimation = this->config->animationType;
 	this->currentColor = this->config->color;
+	this->currentText = this->config->text;
 
 	this->heartbeat = this->config->heartbeat;
 	this->delay = this->config->delay;
 
 	this->timeZone = this->config->timeZone;
-	this->dialect = this->config->dialect;
 	for (int i = 0; i < 4; i++)
 		this->ntpserver[i] = this->config->ntpserver[i];
 }

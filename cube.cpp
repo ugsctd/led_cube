@@ -33,7 +33,7 @@ void CubeClass::setup(bool altSerial)
         else
             Serial.write(0xAD);
     }
-    ChangeAnimation((AnimationType) Config.currentAnimation, 'F', "  Hello!", (ColumnColor) Config.currentColor );
+    ChangeAnimation((AnimationType)Config.currentAnimation, 'F', Config.currentText, (ColumnColor)Config.currentColor);
 }
 
 // Prints the next frame and waits
@@ -56,7 +56,6 @@ void CubeClass::printFrame()
 //Changes the animation type
 void CubeClass::ChangeAnimation(AnimationType t, char param1, String param2, ColumnColor color)
 {
-    this->type = t;
     switch (t)
     {
     case AnimationType::Rise:
@@ -360,7 +359,6 @@ LetterAnimationClass::LetterAnimationClass(char letter, ColumnColor color)
     this->letter = letter;
     this->color = color;
 }
-
 
 unsigned char *LetterAnimationClass::printNextFrame()
 {

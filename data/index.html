@@ -233,8 +233,10 @@
 					var json = JSON.parse(xhttp.responseText);
 
 					document.getElementById('displaymode').selectedIndex = json['mode'];
+					document.getElementById('color').selectedIndex = json['color'];
 					document.getElementById('delaySlide').value = json['delay'];
 					document.getElementById('range').innerHTML = json['delay'];
+					document.getElementById('param2').innerHTML = json['param2'];
 
 					loaded = true;
 				}

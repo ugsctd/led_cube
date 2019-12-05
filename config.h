@@ -29,12 +29,13 @@ typedef struct _config_struct
 	bool heartbeat;
 	int delay;
 	uint32_t timeZone;
-	uint32_t dialect;
 	uint32_t animationType;
 	uint32_t color;
+	String text;
 } config_struct;
 
-#define EEPROM_SIZE 512
+// #define EEPROM_SIZE 512
+#define EEPROM_SIZE 4096
 
 class ConfigClass
 {
@@ -47,6 +48,7 @@ public:
 	void saveDelayed();
 	void load();
 	void reset();
+	void formatEeprom();
 
 	// public configuration variables
 	IPAddress ntpserver = IPAddress(0, 0, 0, 0);
@@ -56,12 +58,12 @@ public:
 
 	uint32_t currentAnimation = 1; //Fall
 	uint32_t currentColor = 6;	 //All
+	String currentText = "icecream!";
 
 	int updateProgress = 0;
 	int timeZone = 1;
 	int delayedWriteTimer = 0;
 	bool delayedWriteFlag = false;
-	int dialect = 0;
 
 private:
 	// copy of EEPROM content

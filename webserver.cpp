@@ -29,34 +29,11 @@ JsonObject buildConfigurationString(JsonDocument json)
 {
   json["ntp"] = Config.ntpserver.toString();
 
-  // int mode = 0;
-  // switch (Config.defaultMode)
-  // {
-  // case DisplayMode::plain:
-  //   mode = 0;
-  //   break;
-  // case DisplayMode::fade:
-  //   mode = 1;
-  //   break;
-  // case DisplayMode::flyingLettersVerticalUp:
-  //   mode = 2;
-  //   break;
-  // case DisplayMode::flyingLettersVerticalDown:
-  //   mode = 3;
-  //   break;
-  // default:
-  //   mode = 0;
-  //   break;
-  // }
-
-  // json["mode"] = String(mode);
-
   if (Config.heartbeat)
     json["heartbeat"] = "1";
   else
     json["heartbeat"] = "0";
 
-  json["dialect"] = String(Config.dialect);
   json["timezone"] = String(Config.timeZone);
 
   return json.to<JsonObject>();
@@ -105,7 +82,6 @@ void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventTyp
     if (buffer)
     {
       serializeJson(json, (char *)buffer->get(), len + 1);
-      // json.printTo((char *)buffer->get(), len + 1);
       client->text(buffer);
     }
   }
@@ -396,8 +372,8 @@ void WebServerClass::handleSetDialect(AsyncWebServerRequest *request)
   if (request->hasArg("value"))
   {
     int newDialect = request->arg("value").toInt();
-    Config.dialect = newDialect;
-    Config.save();
+    // Config.dialect = newDialect;
+    // Config.save();
   }
   request->send(200, "text/plain", "OK");
   this->ws.textAll("{\"dialect\":\"" + request->arg("value") + "\"}");
@@ -458,13 +434,15 @@ void WebServerClass::handleSetMode(AsyncWebServerRequest *request)
     request->send(400, "text/plain", "ERR");
   }
   else
-  {    
+  {
     Config.currentAnimation = (uint32_t)mode;
-    Config.currentColor =(uint32_t) color;
+    Config.currentColor = (uint32_t)color;
+    auto param1 = request->arg("param1").toInt();
+    Config.currentText = request->arg("param2");
     Config.save();
     Serial.print("Set animation to :");
     Serial.println(Config.delay);
-    Cube.ChangeAnimation(mode, request->arg("param1").toInt(), request->arg("param2"), color);
+    Cube.ChangeAnimation(mode, param1, Config.currentText, color);
     request->send(200, "text/plain", "OK");
   }
   this->ws.textAll("{\"mode\":\"" + request->arg("value") + "\"}");
@@ -558,7 +536,7 @@ void WebServerClass::handleInfo(AsyncWebServerRequest *request)
   }
   else
   {
-    
+
     serializeJson(json, buf, sizeof(buf));
     // json.printTo(buf, sizeof(buf));
   }
@@ -588,35 +566,23 @@ void WebServerClass::handleGetSettings(AsyncWebServerRequest *request)
   StaticJsonDocument<512> json;
   char buf[512];
 
-  // JsonObject &json = jsonBuffer.createObject();
-
   json["ntp"] = Config.ntpserver.toString();
 
-  int mode = static_cast<int>(Cube.type);
+  int mode = static_cast<int>(Config.currentAnimation);
+  int color = static_cast<int>(Config.currentColor);
 
   json["mode"] = String(mode);
   json["delay"] = String(Config.delay);
-
-  // if (Config.heartbeat)
-  //   json["heartbeat"] = "1";
-  // else
-  //   json["heartbeat"] = "0";
-
-  // json["dialect"] = String(Config.dialect);
-  // json["timezone"] = String(Config.timeZone);
-  // json["test"] = "pass";
+  json["color"] = String(color);
+  json["param2"] = String(Config.currentText);
 
   if (request->hasArg("pretty"))
   {
-    
     serializeJsonPretty(json, buf, sizeof(buf));
-    // json.prettyPrintTo(buf, sizeof(buf));
   }
   else
   {
-    
     serializeJson(json, buf, sizeof(buf));
-    // json.printTo(buf, sizeof(buf));
   }
 
   request->send(200, "application/json", buf);
